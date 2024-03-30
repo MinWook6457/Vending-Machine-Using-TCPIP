@@ -14,6 +14,10 @@ const selectedBeverage = async(req,res) => {
             }
         })
 
+        console.log(selectedBeverage)
+
+
+
         // 음료 카운팅
         // 투입 된 금액과 음료 가격에 맞춰서 반환할 잔돈 구하기
         // 반환 지폐 개수는 각각 10개씩 존재
@@ -24,20 +28,21 @@ const selectedBeverage = async(req,res) => {
     }
 }
 
-const initialize = async (req, res) => {
+const initialize = async (req, res) => { // 초기화 함수
     try {
+        // 하드 코딩 => 추후 개선 필요
         const vendingData = [
-            { beverage: 'water', price: 450, stock: 10 },
-            { beverage: 'coffee', price: 500, stock: 10 },
-            { beverage: 'ionic', price: 550, stock: 10 },
-            { beverage: 'shake', price: 700, stock: 10 },
-            { beverage: 'cola', price: 750, stock: 10 },
-            { beverage: 'ade', price: 800, stock: 10 },
+            { id : 1, beverage: 'water', price: 450, stock: 10 },
+            { id : 2, beverage: 'coffee', price: 500, stock: 10 },
+            { id : 3, beverage: 'ionic', price: 550, stock: 10 },
+            { id : 4, beverage: 'shake', price: 700, stock: 10 },
+            { id : 5, beverage: 'cola', price: 750, stock: 10 },
+            { id : 6, beverage: 'ade', price: 800, stock: 10 },
         ];
 
         for (const item of vendingData) {
             // 데이터베이스에 이미 해당 음료가 있는지 확인
-            const existingItem = await Vending.findOne({ where: { beverage: item.beverage } });
+            const existingItem = await Vending.findOne({ where: { id: item.id } });
             
             // 이미 해당 음료가 데이터베이스에 없는 경우에만 삽입
             if (existingItem === null) {
