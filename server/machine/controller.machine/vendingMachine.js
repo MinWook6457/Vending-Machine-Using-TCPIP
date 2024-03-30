@@ -16,8 +16,6 @@ const selectedBeverage = async(req,res) => {
 
         console.log(selectedBeverage)
 
-
-
         // 음료 카운팅
         // 투입 된 금액과 음료 가격에 맞춰서 반환할 잔돈 구하기
         // 반환 지폐 개수는 각각 10개씩 존재
