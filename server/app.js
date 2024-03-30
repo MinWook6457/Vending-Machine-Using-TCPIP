@@ -6,6 +6,9 @@ const http = require('http')
 
 // 라우터 설정
 // const openaiRouter = require('./api/openai/route.openai')
+
+const machineRouter = require('./machine/route.machine')
+
 const port = 8081;
 
 const app = express();
@@ -24,6 +27,7 @@ sequelize.sync({ force: false })
 
 // 라우팅
 // app.use("/openai", openaiRouter)
+app.use("/machine", machineRouter)
 
 
 app.listen(port, () => {
