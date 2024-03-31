@@ -11,6 +11,6 @@ router.post('/checkPassword',
     body('password').notEmpty(),
     ]),
     admin.loginAdmin
-);
+)
 
 module.exports = router

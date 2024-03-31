@@ -10,6 +10,7 @@ const sequelize = new Sequelize(config.database, config.username, config.passwor
 
 db.Coin = require('./coin/coin')(sequelize, Sequelize) // 화폐 테이블
 db.Vending = require('./vending/vending')(sequelize,Sequelize) // 자판기 테이블
+db.Client = require('./client/client')(sequelize,Sequelize) // 클라이언트 테이블
 
 
 db.sequelize = sequelize
