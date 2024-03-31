@@ -71,3 +71,19 @@ footer p {
   margin-bottom: .25rem;
 }
 
+.navbar-form {
+  padding: 5px; /* 폼과 네비게이션 바 사이의 간격을 조정 */
+}
+
+.admin-label {
+  color: #ffffff; /* Admin 문구의 색상을 밝게 조정 */
+}
+
+.admin-password {
+  color: #ffffff; /* 관리자 비밀번호 입력의 텍스트 색상을 밝게 조정 */
+
+}
+
+
+
+
