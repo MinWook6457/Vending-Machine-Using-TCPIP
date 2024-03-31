@@ -3,12 +3,12 @@ const router = express.Router();
 const admin = require('./controller.admin/admin')
 const path = require('path');
 const { body } = require('express-validator');
-const validate = require('../../../middleware/validate');
+const validate = require('../middleware/validate')
 
 
-router.post('/admin',
+router.post('/checkPassword',
     validate([
-    body('password').isString(),
+    body('password').notEmpty(),
     ]),
     admin.loginAdmin
 );

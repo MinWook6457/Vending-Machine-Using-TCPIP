@@ -3,12 +3,14 @@
 const express = require("express");
 const cors = require('cors')
 const http = require('http')
+
 const socketIo = require('socket.io')
 
 // 라우터 설정
 // const openaiRouter = require('./api/openai/route.openai')
 
 const machineRouter = require('./machine/route.machine')
+const adminRouter = require('./admin/route.admin')
 
 const port = 8081;
 
@@ -21,6 +23,7 @@ app.use(cors({
 }));
 
 const { sequelize } = require('./models/index');  
+const bodyParser = require("body-parser");
 
 sequelize.sync({ force: false })
   .then(() => {
@@ -53,6 +56,7 @@ io.on('connection', (socket) => {
 // 라우팅
 // app.use("/openai", openaiRouter)
 app.use("/machine", machineRouter)
+app.use("/admin", adminRouter)
 
 
 server.listen(port, () => {
