@@ -62,20 +62,19 @@ function App() {
 
           
             setSelectedItem(data);  
-            // 페이지가 로드될 때 데이터베이스에 데이터 삽입 요청 보내기
-            axios.post('/machine/initialize')
-                .then(response => {
-                    console.log(response);
-                    console.log('데이터베이스에 데이터가 성공적으로 삽입되었습니다.');
-                })
-                .catch(error => {
-                    console.error('데이터베이스 데이터 삽입에 실패했습니다.', error);
-                });
-
-               
+            // 페이지가 로드될 때 데이터베이스에 데이터 삽입 요청 보내기     
         });
       
     }, [adminPassword]);
+
+    axios.post('/machine/initialize')
+    .then(response => {
+        console.log(response);
+        console.log('데이터베이스에 데이터가 성공적으로 삽입되었습니다.');
+    })
+    .catch(error => {
+        console.error('데이터베이스 데이터 삽입에 실패했습니다.', error);
+    });
 
     const handleAdminPasswordChange = (event) => {
         setAdminPassword(event.target.value);
