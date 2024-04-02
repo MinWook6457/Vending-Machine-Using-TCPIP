@@ -4,11 +4,11 @@ require('dotenv').config();
 const loginAdmin = async (req, res) => {
     const adminPassword  = req.body;
 
-    // console.log('관리자 비밀번호 입력 : ' + adminPassword.password)
-    // console.log('닷엔브 비밀번호 : '+ process.env.ADMIN_PASSWORD)
+    console.log('관리자 비밀번호 입력 : ' + adminPassword)
+    console.log('닷엔브 비밀번호 : '+ process.env.ADMIN_PASSWORD)
     try {
 
-        if(adminPassword.password === process.env.ADMIN_PASSWORD) { // 관리자 비밀번호 확인
+        if(adminPassword === process.env.ADMIN_PASSWORD) { // 관리자 비밀번호 확인
             
             console.log('관리자 페이지로 이동합니다.')
             // 관리자 페이지로 이동
