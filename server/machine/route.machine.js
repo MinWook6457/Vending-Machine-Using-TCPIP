@@ -10,9 +10,6 @@ function handleRequest(requestData, socket) {
         // 데이터를 추출하고 유효성 검사 후 vendingMachine.selectedBeverage 호출
         const { description, price } = request.data;
         vendingMachine.selectedBeverage({ body: { description, price } }, { socket });
-    } else if (method === 'POST' && path === '/machine/initialize') {
-        // POST /machine/initialize 요청 처리
-        vendingMachine.initialize({ body: {} }, { socket });
     } else if (method === 'POST' && path === '/machine/selectStock') {
         // POST /machine/selectStock 요청 처리
         const { stock_id } = request.data;
