@@ -1,31 +1,13 @@
+// App.js
+
 import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Navbar, Button, Card } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import axios from 'axios';
-import io from 'socket.io-client';
 import Form from 'react-bootstrap/Form';
 
 import './App.css';
 
-const socket = io('http://localhost:8081', {
-    path: '/socket.io' // 서버와 일치하는 경로 사용
-});
-
-function Drink({ imageUrl, description, price }) {
-    const handleSelect = () => {
-        axios.post('/machine/selectedBeverage', { description, price })
-            .then(response => {
-                if (response.status === 200) {
-                    console.log('음료가 선택되었습니다.');
-                } else {
-                    console.error('음료 선택에 실패했습니다.');
-                }
-            })
-            .catch(error => {
-                console.error('요청 중 오류가 발생했습니다.', error);
-            });
-    };
-
+function Drink({ imageUrl, description, price, stock, handleSelect, handleStock }) {
     return (
         <Col md={4} className="mb-4">
             <Card className="shadow-sm">
@@ -34,8 +16,9 @@ function Drink({ imageUrl, description, price }) {
                     <Card.Text>{description}</Card.Text>
                     <div className="d-flex justify-content-between align-items-center">
                         <div className="btn-group">
-                            <Button variant="outline-secondary" size="sm" onClick={handleSelect}>Select</Button>
-                            <Button variant="outline-secondary" size="sm">Edit</Button>
+                            <Button variant="outline-secondary" size="sm" onClick={() => handleSelect(description, price)}>선택</Button>
+                            <Button variant="outline-secondary" size="sm" onClick={() => handleStock(description)}>재고</Button>
+                            <small className="text-muted">{stock}개</small>
                         </div>
                         <small className="text-muted">{price}원</small>
                     </div>
@@ -46,35 +29,62 @@ function Drink({ imageUrl, description, price }) {
 }
 
 function App() {
-    const [selectedItem, setSelectedItem] = useState(null);
-    const [adminPassword, setAdminPassword] = useState('');
-    const [socketId, setSocketId] = useState(null);
 
+    const [adminPassword, setAdminPassword] = useState('');
+    const [stock, setStock] = useState(0);
+    const [workerReady, setWorkerReady] = useState(false);
 
     useEffect(() => {
-        socket.on('connect', () => {
-        // 연결된 소켓의 ID를 상태로 저장
-        setSocketId(socket.id);
-        });
+        // 초기 재고 조회
+        handleStock('water');
+    }, []);
 
-        socket.on('selectedBeverage', (data) => {
-            console.log(data)
+    const handleWorkerMessage = (event) => {
+        const { type, payload } = event.data;
+        switch (type) {
+          case 'stock':
+            setStock(payload);
+            break;
+          default:
+            console.error('Unknown message type:', type);
+        }
+    };
 
-          
-            setSelectedItem(data);  
-            // 페이지가 로드될 때 데이터베이스에 데이터 삽입 요청 보내기     
-        });
-      
-    }, [adminPassword]);
+    const handleWorkerError = (error) => {
+        console.error('Worker error:', error);
+    };
 
-    axios.post('/machine/initialize')
-    .then(response => {
-        console.log(response);
-        console.log('데이터베이스에 데이터가 성공적으로 삽입되었습니다.');
-    })
-    .catch(error => {
-        console.error('데이터베이스 데이터 삽입에 실패했습니다.', error);
-    });
+    const workerRef = React.useRef(null);
+
+    useEffect(() => {
+        workerRef.current = new Worker('./worker.js');
+        workerRef.current.onmessage = handleWorkerMessage;
+        workerRef.current.onerror = handleWorkerError;
+
+        // 웹 워커가 생성되었음을 표시
+        setWorkerReady(true);
+
+        return () => {
+            workerRef.current.terminate();
+        };
+    }, []);
+
+    const sendMessageToWorker = (type, payload) => {
+        // 웹 워커가 준비되었을 때만 메시지를 보냄
+        if (workerReady) {
+            workerRef.current.postMessage({ type, payload });
+        }else{
+            
+        }
+    };
+
+    const handleSelect = (description, price) => {
+        sendMessageToWorker('select', { description, price });
+    };
+
+    const handleStock = (description) => {
+        sendMessageToWorker('stock', { description });
+    };
 
     const handleAdminPasswordChange = (event) => {
         setAdminPassword(event.target.value);
@@ -82,16 +92,7 @@ function App() {
 
     const handleAdminPasswordSubmit = (event) => {
         event.preventDefault();
-
-        axios.post('/admin/checkPassword', { password: adminPassword })
-        .then(response => {
-            console.log('관리자 모드 접속한 클라이언트 : ' + socketId)
-            // 관리자 페이지로 이동
-            console.log(response);
-        })
-        .catch(error => {
-            console.error('비밀번호 확인 중 오류가 발생했습니다.', error);
-        });
+        sendMessageToWorker('adminPassword', { password: adminPassword });
     };
 
     return (
@@ -112,7 +113,6 @@ function App() {
                                 value={adminPassword}
                                 onChange={handleAdminPasswordChange}
                             />
-
                             <Button as="input" type="submit" value="입력" />
                         </Form>
                     </Container>
@@ -121,23 +121,22 @@ function App() {
             <div className="album py-5 bg-light">
                 <Container>
                     <Row>
-                        <Drink imageUrl="/water.png" description="water" price={450} />
-                        <Drink imageUrl="/coffee.png" description="coffee" price={500} />
-                        <Drink imageUrl="/sports.png" description="ionic" price={550} />
+                        <Drink imageUrl="/water.png" description="water" price={450} handleSelect={handleSelect} handleStock={handleStock} stock={stock} />
+                        <Drink imageUrl="/coffee.png" description="coffee" price={500} handleSelect={handleSelect} handleStock={handleStock} stock={stock} />
+                        <Drink imageUrl="/sports.png" description="ionic" price={550} handleSelect={handleSelect} handleStock={handleStock} stock={stock} />
                     </Row>
                     <Row>
-                        <Drink imageUrl="/shake.png" description="shake" price={700} />
-                        <Drink imageUrl="/cola.png" description="cola" price={750} />
-                        <Drink imageUrl="/ade.png" description="ade" price={800} />
+                        <Drink imageUrl="/shake.png" description="shake" price={700} handleSelect={handleSelect} handleStock={handleStock} stock={stock} />
+                        <Drink imageUrl="/cola.png" description="cola" price={750} handleSelect={handleSelect} handleStock={handleStock} stock={stock} />
+                        <Drink imageUrl="/ade.png" description="ade" price={800} handleSelect={handleSelect} handleStock={handleStock} stock={stock} />
                     </Row>
                 </Container>
             </div>
             <footer className="text-muted">
                 <Container>
-                    <p>Vending Machine Using SocketIO made by MinWook CSE 19</p>
+                    <p>Vending Machine Using HTTP made by MinWook CSE 19</p>
                 </Container>
             </footer>
-             
         </div>
     );
 }
