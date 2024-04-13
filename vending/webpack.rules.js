@@ -1,14 +1,13 @@
 module.exports = [
   // ... existing loader config ...
   {
-    test: /\.jsx?$/,
-    use: {
-      loader: 'babel-loader',
-      options: {
-        exclude: /node_modules/,
-        presets: ['@babel/preset-react']
+      test: /\.(js|jsx)$/,
+      exclude: /node_modules/,
+      use: {
+        loader: 'babel-loader',
+        options: {
+          presets: ['@babel/preset-react']
+        }
       }
-    }
   }
-  // ... existing loader config ...
 ];
