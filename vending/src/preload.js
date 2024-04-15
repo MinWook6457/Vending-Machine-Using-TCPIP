@@ -7,12 +7,16 @@ const { v4: uuidv4 } = require('uuid')
 async function connectToMainProcess(content, vendingData){
     const uuid = generateRandomUUID()
 
+    console.log(uuid)
+
     const payload = {
         hash : "",
-        uuid,
         content,
+        uuid,
         payload : vendingData
     }
+
+    console.log(payload)
 
     return await ipcRenderer.invoke(content, payload);
 }
