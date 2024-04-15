@@ -1,16 +1,39 @@
 ﻿import React from 'react';
 import Drink from './Drink'; // Drink 컴포넌트를 가져오기
-import coffeeImage from "../../img/coffee.png";
-import adeImage from "../../img/ade.png";
+
+
+import waterImage from '../../img/water.png'
+import adeImage from '../../img/ade.png'
+import sportsImage from '../../img/sports.png'
+import coffeeImage from '../../img/coffee.png'
+import colaImage from '../../img/cola.png'
+import shakeImage from '../../img/shake.png'
 
 function Home() {
+  // 가상의 음료 데이터 배열
+  const drinks = [
+    { name: 'water', imageUrl: waterImage, description: '물', price: '$2.50' },
+    { name: 'ade', imageUrl: adeImage, description: '에이드', price: '$3.00' },
+    { name: 'coffee', imageUrl: coffeeImage, description: '커피', price: '$2.75' },
+    { name: 'cola', imageUrl: colaImage, description: '콜라', price: '$3.50' },
+    { name: 'shake', imageUrl: shakeImage, description: '쉐이크', price: '$2.90' },
+    { name: 'sports', imageUrl: sportsImage, description: '스포츠음료', price: '$3.20' },
+  ];
+
   return (
     <div>
       <h1>Welcome to Vending Machine</h1>
       <p>Please select a drink:</p>
       <div className="drink-list">
-        <Drink name="Coffee" imageUrl={coffeeImage} description="coffee" price="2.50" />
-        <Drink name="Ade" imageUrl={adeImage} description="Ade" price="2.00" />
+        {drinks.map((drink, index) => (
+          <Drink
+            key={index}
+            name={drink.name}
+            imageUrl={drink.imageUrl}
+            description={drink.description}
+            price={drink.price}
+          />
+        ))}
       </div>
     </div>
   );
