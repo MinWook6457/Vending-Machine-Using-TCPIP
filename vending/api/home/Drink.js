@@ -1,24 +1,29 @@
-﻿import React from 'react';
-import { Container, Row, Col } from 'react-bootstrap';
+﻿import React from 'react' 
+import Stock from '../vending/Stock'
+import { Card, Button, Col } from 'react-bootstrap'  
+import 'bootstrap/dist/css/bootstrap.min.css'
 
-function Drink({ imageUrl, description, price, stock, handleSelect, handleStock }) {
-    return (
-      <Col md={4} className="mb-4">
+
+function Drink({ imageUrl, description, price, stock}) {
+   console.log('Drink 컴포넌트 호출')
+
+  return (
+    <Col md={10} className="mb-4">
       <Card className="shadow-sm">
-          <Card.Img variant="top" src={imageUrl} />
-          <Card.Body>
-              <Card.Text>{description}</Card.Text>
-              <div className="d-flex justify-content-between align-items-center">
-                  <div className="btn-group">
-                      <Button variant="outline-secondary" size="sm" onClick={() => handleSelect(description, price)}>선택</Button>
-                      <Button variant="outline-secondary" size="sm" onClick={() => handleStock(description)}>재고</Button>
-                      <small className="text-muted">{stock}개</small>
-                  </div>
-                  <small className="text-muted">{price}원</small>
-              </div>
-          </Card.Body>
+        <Card.Img variant="top" src={imageUrl} />
+        <Card.Body>
+          <Card.Text>{description}</Card.Text>
+          <div className="d-flex justify-content-between align-items-center">
+            <div className="btn-group">
+              <Button variant="outline-secondary" size="sm" onClick={() => Stock.handleStockButtonClick(description)}>재고</Button>
+              <small className="text-muted">{stock}개</small>
+            </div>
+            <small className="text-muted">{price}원</small>
+          </div>
+        </Card.Body>
       </Card>
-    </Col> 
-  )
+    </Col>
+  ) 
 }
-export default Drinks;
+
+export default Drink 

@@ -14,5 +14,21 @@ date : 생성 시각
 ipc 통신 시에 변수에 함수가 저장되면 안됨
 */
 
-const { Worker } = require('worker_threads')
 
+// 워커 스크립트
+self.onmessage = function(event) {
+    const { type, payload } = event.data 
+  switch (type) {
+    case 'stock':
+      const description = payload 
+      const stockCount = handleStock(description) 
+      postMessage({ type: 'stockResult', payload: stockCount }) 
+      break 
+    default:
+      console.error('Unknown message type:', type) 
+  }
+}
+
+function handleStock(data){
+    return 10
+}
