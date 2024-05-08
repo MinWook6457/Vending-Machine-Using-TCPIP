@@ -11,12 +11,12 @@ import shakeImage from '../../img/shake.png'
 const Home = () => {
   // 가상의 음료 데이터 배열
   const drinks = [
-    { name: 'water', imageUrl: waterImage, description: '물', price: '$2.50' },
-    { name: 'ade', imageUrl: adeImage, description: '에이드', price: '$3.00' },
-    { name: 'coffee', imageUrl: coffeeImage, description: '커피', price: '$2.75' },
-    { name: 'cola', imageUrl: colaImage, description: '콜라', price: '$3.50' },
-    { name: 'shake', imageUrl: shakeImage, description: '쉐이크', price: '$2.90' },
-    { name: 'sports', imageUrl: sportsImage, description: '스포츠음료', price: '$3.20' },
+    { name: 'water', imageUrl: waterImage, description: '물', price: '450' },
+    { name: 'coffee', imageUrl: coffeeImage, description: '커피', price: '500' },
+    { name: 'sports', imageUrl: sportsImage, description: '이온음료', price: '550' },
+    { name: 'shake', imageUrl: shakeImage, description: '고급커피', price: '700' },
+    { name: 'cola', imageUrl: colaImage, description: '탄산음료', price: '750' },
+    { name: 'ade', imageUrl: adeImage, description: '특화음료', price: '800' },
   ] 
 
   return (
@@ -32,7 +32,8 @@ const Home = () => {
                 imageUrl={drink.imageUrl}
                 description={drink.description}
                 price={drink.price}
-                handleStock={() => Stock.handleStockButtonClick(drink.description)} // 재고 버튼 클릭 시 재고 확인 함수 호출
+                stock={drink.stock}
+              //  handleStock={() => Stock.handleStockButtonClick(drink.description)} // 재고 버튼 클릭 시 재고 확인 함수 호출
               />
             </div>
           ))}
@@ -45,7 +46,9 @@ const Home = () => {
                 imageUrl={drink.imageUrl}
                 description={drink.description}
                 price={drink.price}
-                handleStock={() => Stock.handleStockButtonClick(drink.description)} // 재고 버튼 클릭 시 재고 확인 함수 호출
+                stock={drink.stock}
+
+            //    handleStock={() => Stock.handleStockButtonClick(drink.description)} // 재고 버튼 클릭 시 재고 확인 함수 호출
               />
             </div>
           ))}

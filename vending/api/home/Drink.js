@@ -15,7 +15,7 @@ function Drink({ imageUrl, description, price, stock}) {
           <Card.Text>{description}</Card.Text>
           <div className="d-flex justify-content-between align-items-center">
             <div className="btn-group">
-              <Button variant="outline-secondary" size="sm" onClick={() => Stock.handleStockButtonClick(description)}>재고</Button>
+              <Stock />
               <small className="text-muted">{stock}개</small>
             </div>
             <small className="text-muted">{price}원</small>

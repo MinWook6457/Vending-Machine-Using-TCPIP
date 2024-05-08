@@ -1,34 +1,30 @@
-﻿/*
-preload -> workerpool -> worker.js
+﻿const net = require('net');
 
-프로미스에 await를 걸어 끝날때 까지 대기
+// 서버 정보
+const HOST = 'localhost';
+const PORT = 3000;
 
-리액트에서 받아온 데이터 hash -> map에 저장 (해쉬화)
+// 소켓 생성 및 서버에 연결
+const client = new net.Socket();
+client.connect(PORT, HOST, () => {
+  console.log('Connected to server');
 
-무엇을 언제 어디에
+  // 서버에 메시지 보내기 (재고 확인 요청 등)
+  const message = 'stock';
+  client.write(message);
+});
 
-cmd : 행동
-vendingId : 자판기 id
-date : 생성 시각
+// 서버로부터 데이터를 받았을 때 처리
+client.on('data', data => {
+  console.log('Received:', data.toString());
 
-ipc 통신 시에 변수에 함수가 저장되면 안됨
-*/
+  // 서버로부터 받은 데이터를 처리 (재고 확인 결과 등)
+  const stockCount = parseInt(data.toString());
+  console.log('Stock count:', stockCount);
 
+});
 
-// 워커 스크립트
-self.onmessage = function(event) {
-    const { type, payload } = event.data 
-  switch (type) {
-    case 'stock':
-      const description = payload 
-      const stockCount = handleStock(description) 
-      postMessage({ type: 'stockResult', payload: stockCount }) 
-      break 
-    default:
-      console.error('Unknown message type:', type) 
-  }
-}
-
-function handleStock(data){
-    return 10
-}
+// 연결이 종료됐을 때 처리
+client.on('close', () => {
+  console.log('Connection closed');
+});
