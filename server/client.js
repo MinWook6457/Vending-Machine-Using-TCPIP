@@ -1,17 +1,33 @@
 const net = require('net');
-
-const client = net.connect({ port: 8080, host: 'localhost' }, function () {
-    console.log('client connected');
-    client.write('send data!\r\n');
+const socket = net.connect({
+	port: 2031,
+	host: "localhost"
 });
 
-client.on('data', function (data) {
-    console.log(data.toString());
-    // 클라이언트에서 이벤트 발생
-    process.emit('messageFromClient', data.toString());
-    client.end();
+// setting encoding
+socket.setEncoding('utf8');
+
+socket.on('connect', function () {
+	console.log('on connect');
+
+	// send message to server
+	setTimeout(() => {
+		socket.write('msg from client');
+	}, 1000);
+
+	setTimeout(() => {
+		// socket.destroy();
+	}, 2000);
 });
 
-client.on('end', function () { // end 이벤트 발생시 callback    
-    console.log('Client disconnected');
+socket.on('data', function (data) {
+	console.log(data);
+});
+
+socket.on('close', function () {
+	console.log('close');
+});
+
+socket.on('error', function (err) {
+	console.log('on error: ', err.code);
 });

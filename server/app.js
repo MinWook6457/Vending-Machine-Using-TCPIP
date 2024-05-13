@@ -1,25 +1,39 @@
 const net = require('net');
+const ipaddr = "localhost";
+const port = 2031;
 
-// 서버 생성
-const server = net.createServer((socket) => {
-  console.log('클라이언트가 연결되었습니다.');
+let server = net.createServer(function (socket) {
+	console.log(socket.address().address + " connected.");
 
-  // 클라이언트로부터 메시지 수신
-  socket.on('data', (data) => {
-    console.log('서버에서 메시지를 수신했습니다:', data.toString());
+	// setting encoding
+	socket.setEncoding('utf8');
 
-    // 클라이언트로 응답 전송
-    socket.write('서버에서의 응답');
-  });
+	// print data from client
+	socket.on('data', function (data) {
+		console.log(data);
+	});
 
-  // 클라이언트 연결 종료
-  socket.on('end', () => {
-    console.log('클라이언트가 연결을 종료했습니다.');
-  });
+	// print message for disconnection with client
+	socket.on('close', function () {
+		console.log('client disconnted.');
+	});
+
+	// send message to client
+	setTimeout(() => {
+		socket.write('welcome to server');
+	}, 500);
+	
+	setTimeout(() => {
+		socket.destroy();
+	}, 3000);
 });
 
-// 서버 리스닝
-const PORT = 8080;
-server.listen(PORT, () => {
-  console.log(`서버가 포트 ${PORT}에서 실행 중입니다.`);
+// print error message
+server.on('error', function (err) {
+	console.log('err: ', err.code);
+});
+
+// listening
+server.listen(port, ipaddr, function () {
+	console.log('listening on 2031..');
 });
