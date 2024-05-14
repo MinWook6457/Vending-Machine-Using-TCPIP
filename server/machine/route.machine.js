@@ -11,7 +11,7 @@ function handleRequest(requestData, socket) {
         const { description, price } = request.data;
         vendingMachine.selectedBeverage({ body: { description, price } }, { socket });
     } else if (method === 'POST' && path === '/machine/selectStock') {
-        // POST /machine/selectStock 요청 처리
+        // POST /machine/selectStock 요청 처리 
         const { stock_id } = request.data;
         vendingMachine.selectStock({ body: { stock_id } }, { socket });
     } else {

@@ -1,8 +1,8 @@
 {
   "development": {
-    "username": "minwook",
-    "password": "testminwook",
-    "database": "vendingmachine",
+    "username": "vending",
+    "password": "1234",
+    "database": "machine",
     "host": "127.0.0.1",
     "dialect": "mysql"
   },

@@ -1,39 +1,42 @@
-const net = require('net');
-const ipaddr = "localhost";
-const port = 2031;
+require('dotenv').config()
 
-let server = net.createServer(function (socket) {
-	console.log(socket.address().address + " connected.");
+const net = require('net')
+const PORT = 3000
+const { sequelize } = require('./models/index')
 
-	// setting encoding
-	socket.setEncoding('utf8');
+sequelize.sync({ force: false })
+  .then(() => {
+    console.log('데이터베이스 연결 성공');
+  })
+  .catch((err) => {
+    console.error(err);
+  });
 
-	// print data from client
-	socket.on('data', function (data) {
-		console.log(data);
+
+// 서버 생성
+const server = net.createServer((socket) => {
+	console.log('Client connected');
+  
+	// 클라이언트로부터 음료 정보 수신
+	socket.on('data', async (data) => {
+	  const drinkData = JSON.parse(data);
+	  console.log('Received drink data:', drinkData);
+  
+	  // 음료 데이터를 데이터베이스에 저장
+	  try {
+		await sequelize.sync();
+		const drink = await Drink.create(drinkData);
+		console.log('Drink created:', drink.toJSON());
+	  } catch (error) {
+		console.error('Error creating drink:', error);
+	  }
 	});
-
-	// print message for disconnection with client
-	socket.on('close', function () {
-		console.log('client disconnted.');
-	});
-
-	// send message to client
-	setTimeout(() => {
-		socket.write('welcome to server');
-	}, 500);
-	
-	setTimeout(() => {
-		socket.destroy();
-	}, 3000);
-});
-
-// print error message
-server.on('error', function (err) {
-	console.log('err: ', err.code);
-});
-
-// listening
-server.listen(port, ipaddr, function () {
-	console.log('listening on 2031..');
-});
+  });
+  
+  server.on('error', (err) => {
+	console.error('Server error:', err);
+  });
+  
+  server.listen(PORT, () => {
+	console.log(`Server listening on port ${PORT}`);
+  });
