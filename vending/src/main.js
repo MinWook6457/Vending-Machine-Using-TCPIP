@@ -21,7 +21,7 @@ const createWindow = () => {
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
-};
+}; 
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -36,6 +36,27 @@ app.whenReady().then(() => {
       createWindow();
     }
   });
+
+   // IPC로부터 메시지 수신
+   ipcMain.on('send-message-to-worker', (event, message) => {
+    // 워커에게 메시지 전송
+    worker.postMessage(message);
+  });
+
+  // TCP 클라이언트 설정
+  const client = net.createConnection({ port: 3000 }, () => {
+    console.log('Connected to TCP server');
+    client.write('Hello from TCP client');
+  });
+
+  client.on('data', (data) => {
+    console.log('Received from TCP server:', data.toString());
+  });
+
+  client.on('error', (err) => {
+    console.error('TCP client error:', err);
+  });
+
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common
@@ -49,3 +70,4 @@ app.on('window-all-closed', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
+

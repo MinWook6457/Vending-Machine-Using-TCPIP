@@ -6,7 +6,7 @@ function Stock() {
 
   useEffect(() => {
     // 워커 생성
-    const workerInstance = new Worker('../../worker/worker.js');
+    const workerInstance = new Worker('../worker/worker.js');
     console.log('created worker`s instance : ' + workerInstance.postMessage);
     setWorker(workerInstance);
 
@@ -42,7 +42,6 @@ function Stock() {
 
   return (
     <div>
-      <button onClick={handleStockButtonClick}>Check Stock</button>
       {stock !== null && <p>Stock: {stock}</p>}
     </div>
   );

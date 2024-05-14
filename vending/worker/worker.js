@@ -1,30 +1,26 @@
-﻿const net = require('net');
+﻿// worker.js (워커)
 
-// 서버 정보
-const HOST = 'localhost';
-const PORT = 3000;
+const { parentPort } = require('worker_threads');
+const net = require('net');
 
-// 소켓 생성 및 서버에 연결
-const client = new net.Socket();
-client.connect(PORT, HOST, () => {
-  console.log('Connected to server');
+// TCP 서버 설정
+const server = net.createServer((socket) => {
+  console.log('Client connected to TCP server');
 
-  // 서버에 메시지 보내기 (재고 확인 요청 등)
-  const message = 'stock';
-  client.write(message);
+  socket.on('data', (data) => {
+    console.log('Received from TCP client:', data.toString());
+  });
+
+  socket.write('Hello from TCP server');
 });
 
-// 서버로부터 데이터를 받았을 때 처리
-client.on('data', data => {
-  console.log('Received:', data.toString());
-
-  // 서버로부터 받은 데이터를 처리 (재고 확인 결과 등)
-  const stockCount = parseInt(data.toString());
-  console.log('Stock count:', stockCount);
-
+server.on('error', (err) => {
+  console.error('TCP server error:', err);
 });
 
-// 연결이 종료됐을 때 처리
-client.on('close', () => {
-  console.log('Connection closed');
+server.listen(3000, () => {
+  console.log('TCP server listening on port 3000');
 });
+
+// 메인 프로세스로 메시지 전송
+parentPort.postMessage('Hello from worker');
