@@ -1,7 +1,8 @@
 require('dotenv').config()
 
 const net = require('net')
-const PORT = 3000
+const PORT = 3001
+
 const { sequelize } = require('./models/index')
 
 sequelize.sync({ force: false })
@@ -13,30 +14,34 @@ sequelize.sync({ force: false })
   });
 
 
-// 서버 생성
-const server = net.createServer((socket) => {
-	console.log('Client connected');
-  
-	// 클라이언트로부터 음료 정보 수신
-	socket.on('data', async (data) => {
-	  const drinkData = JSON.parse(data);
-	  console.log('Received drink data:', drinkData);
-  
-	  // 음료 데이터를 데이터베이스에 저장
-	  try {
-		await sequelize.sync();
-		const drink = await Drink.create(drinkData);
-		console.log('Drink created:', drink.toJSON());
-	  } catch (error) {
-		console.error('Error creating drink:', error);
-	  }
-	});
-  });
-  
-  server.on('error', (err) => {
-	console.error('Server error:', err);
-  });
-  
-  server.listen(PORT, () => {
+var server = require('net').createServer(function(socket){
+	console.log('new Connection')
+
+	socket.setEncoding('utf8')
+	socket.write("Type 'quit' to exit\n")
+
+	socket.on('data',function(data){
+		console.log('got' , data.toString())
+
+		if(data.trim().toLowerCase()==='quit'){
+			socket.write('Byte')
+			return socket.end()
+		}
+
+		socket.write(data)
+	})
+})
+
+server.on('listening',function(){
 	console.log(`Server listening on port ${PORT}`);
-  });
+})
+
+server.on('close',function(){
+	console.log('Server is now closed')
+})
+
+server.on('error',function(){
+	console.log('Error occured',err.message)
+})
+
+server.listen(PORT)

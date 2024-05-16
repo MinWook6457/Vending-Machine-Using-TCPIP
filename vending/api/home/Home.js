@@ -1,6 +1,5 @@
 ﻿import React from 'react' 
 import Drink from './Drink'  // Drink 컴포넌트를 가져오기
-import Stock from '../vending/Stock' 
 import waterImage from '../../img/water.png' 
 import adeImage from '../../img/ade.png' 
 import sportsImage from '../../img/sports.png' 

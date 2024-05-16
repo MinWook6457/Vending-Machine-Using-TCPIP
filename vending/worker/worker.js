@@ -1,26 +1,35 @@
-﻿// worker.js (워커)
+﻿// worker.js
 
-const { parentPort } = require('worker_threads');
-const net = require('net');
+// Define the Worker class
+class MyWorker {
+  constructor() {
+    // Set up message handler
+    this.onmessage = (event) => {
+      const { type, payload } = event.data;
+      switch (type) {
+        case 'stock':
+          const stockResult = this.checkStock(payload);
+          postMessage({ type: 'stock', payload: stockResult });
+          break;
+        default:
+          console.error('Unknown message type:', type);
+      }
+    };
+  }
 
-// TCP 서버 설정
-const server = net.createServer((socket) => {
-  console.log('Client connected to TCP server');
+  // Method to check stock
+  checkStock(item) {
+    const stockAmount = parseInt(item, 10);
+    if (isNaN(stockAmount)) {
+      console.error('Invalid stock amount:', item);
+      return null;
+    }
+    return stockAmount - 1;
+  }
+}
 
-  socket.on('data', (data) => {
-    console.log('Received from TCP client:', data.toString());
-  });
+// Instantiate the Worker class
+const workerInstance = new MyWorker();
 
-  socket.write('Hello from TCP server');
-});
-
-server.on('error', (err) => {
-  console.error('TCP server error:', err);
-});
-
-server.listen(3000, () => {
-  console.log('TCP server listening on port 3000');
-});
-
-// 메인 프로세스로 메시지 전송
-parentPort.postMessage('Hello from worker');
+// Export the worker instance
+module.exports = workerInstance;
