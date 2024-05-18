@@ -5,10 +5,7 @@ if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
-let stockResult = 10; // 재고 초기값 설정
-
 async function retrieveStockData(data) {
- 
   return data;
 }
 
@@ -40,6 +37,7 @@ app.whenReady().then(() => {
   ipcMain.handle('stock', async (event, payload) => {
 
     const stockResult = await retrieveStockData(payload);
+    console.log('ipc main handling')
     return stockResult;
   });
 

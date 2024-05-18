@@ -10,12 +10,12 @@ import shakeImage from '../../img/shake.png'
 const Home = () => {
   // 가상의 음료 데이터 배열
   const drinks = [
-    { name: 'water', imageUrl: waterImage, description: '물', price: '450' },
-    { name: 'coffee', imageUrl: coffeeImage, description: '커피', price: '500' },
-    { name: 'sports', imageUrl: sportsImage, description: '이온음료', price: '550' },
-    { name: 'shake', imageUrl: shakeImage, description: '고급커피', price: '700' },
-    { name: 'cola', imageUrl: colaImage, description: '탄산음료', price: '750' },
-    { name: 'ade', imageUrl: adeImage, description: '특화음료', price: '800' },
+    { name: 'water', imageUrl: waterImage, description: '물', price: '450', stock : 10 },
+    { name: 'coffee', imageUrl: coffeeImage, description: '커피', price: '500' , stock : 10  },
+    { name: 'sports', imageUrl: sportsImage, description: '이온음료', price: '550' , stock : 10  },
+    { name: 'shake', imageUrl: shakeImage, description: '고급커피', price: '700' , stock : 10  },
+    { name: 'cola', imageUrl: colaImage, description: '탄산음료', price: '750', stock : 10  },
+    { name: 'ade', imageUrl: adeImage, description: '특화음료', price: '800' , stock : 10 },
   ] 
 
   return (

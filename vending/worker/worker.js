@@ -4,12 +4,12 @@
 class MyWorker {
   constructor() {
     // Set up message handler
-    this.onmessage = (event) => {
+    self.onmessage = (event) => {
       const { type, payload } = event.data;
       switch (type) {
         case 'stock':
           const stockResult = this.checkStock(payload);
-          postMessage({ type: 'stock', payload: stockResult });
+          self.postMessage({ type: 'stock', payload: stockResult });
           break;
         default:
           console.error('Unknown message type:', type);
@@ -19,17 +19,14 @@ class MyWorker {
 
   // Method to check stock
   checkStock(item) {
-    const stockAmount = parseInt(item, 10);
+    const stockAmount = parseInt(item);
     if (isNaN(stockAmount)) {
       console.error('Invalid stock amount:', item);
       return null;
     }
-    return stockAmount - 1;
+    return stockAmount;
   }
 }
 
 // Instantiate the Worker class
-const workerInstance = new MyWorker();
-
-// Export the worker instance
-module.exports = workerInstance;
+new MyWorker();
