@@ -3,17 +3,15 @@ import Stock from '../vending/Stock'
 import Buy from '../vending/Buy'
 import { Card, Button, Col } from 'react-bootstrap'  
 import 'bootstrap/dist/css/bootstrap.min.css'
-
-
-function Drink({ imageUrl, description, price, stock}) {
-   console.log('Drink 컴포넌트 호출')
+function Drink({ beverage,imageURL, price, stock}) {
+  console.log(imageURL)
 
   return (
     <Col md={10} className="mb-4">
       <Card className="shadow-sm">
-        <Card.Img variant="top" src={imageUrl} />
+        <Card.Img variant="top" src={imageURL} alt={beverage}/>
         <Card.Body>
-          <Card.Text>{description}</Card.Text>
+          <Card.Text>{beverage}</Card.Text>
           <div className="d-flex justify-content-between align-items-center">
             <div className="btn-group">
               <Stock />

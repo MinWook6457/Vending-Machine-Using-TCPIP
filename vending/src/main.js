@@ -1,5 +1,7 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
+
 const path = require('path');
+const {socket,getTest} = require('./client')
 
 if (require('electron-squirrel-startup')) {
   app.quit();
@@ -37,29 +39,40 @@ app.whenReady().then(() => {
     }
   });
 
+  ipcMain.handle('getInfo',async(event,payload) => {
+ 
+      // console.log(JSON.parse(test))
+      const test = getTest()
 
-  ipcMain.handle('getStock', async (event, payload) => {
-    try {
-      const stockResult = await retrieveStockData(payload);
-      console.log('Retrieving stock data:', stockResult);
-      return stockResult;
-    } catch (error) {
-      console.error('Error while retrieving stock data:', error);
-      throw error;
-    }
-  });
+      console.log(test)
+
+      return test
+   
+  })
+
+
+  // ipcMain.handle('getStock', async (event, payload) => {
+  //   try {
+  //     const stockResult = await retrieveStockData(payload);
+  //     console.log('Retrieving stock data:', stockResult);
+  //     return stockResult;
+  //   } catch (error) {
+  //     console.error('Error while retrieving stock data:', error);
+  //     throw error;
+  //   }
+  // });
 
  
-  ipcMain.handle('getBuy', async (event, payload) => {
-    try {
-      const buyResult = await resultBuyData(payload);
-      console.log('Processing buy result:', buyResult);
-      return buyResult;
-    } catch (error) {
-      console.error('Error while processing buy result:', error);
-      throw error;
-    }
-  });
+  // ipcMain.handle('getBuy', async (event, payload) => {
+  //   try {
+  //     const buyResult = await resultBuyData(payload);
+  //     console.log('Processing buy result:', buyResult);
+  //     return buyResult;
+  //   } catch (error) {
+  //     console.error('Error while processing buy result:', error);
+  //     throw error;
+  //   }
+  // });
 
 });
 

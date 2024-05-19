@@ -22,7 +22,7 @@ module.exports = (sequelize, DataTypes) => {
             change : {
                 type : DataTypes.INTEGER,
                 allowNull : false,
-                defaulteValue : 10,
+                defaultValue : 10,
                 comment : '자판기가 가지고 있는 화폐 개수'
             }
 

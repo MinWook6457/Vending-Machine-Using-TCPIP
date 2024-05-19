@@ -1,9 +1,7 @@
-require('dotenv').config()
-
-const net = require('net')
-const PORT = 3001
-
-const { sequelize } = require('./models/index')
+require('dotenv').config();
+const net = require('net');
+const PORT = 3001;
+const { Vending, sequelize } = require('./models/index'); // Ensure you have the correct path
 
 sequelize.sync({ force: false })
   .then(() => {
@@ -14,34 +12,34 @@ sequelize.sync({ force: false })
   });
 
 
-var server = require('net').createServer(function(socket){
-	console.log('new Connection')
 
-	socket.setEncoding('utf8')
-	socket.write("Type 'quit' to exit\n")
 
-	socket.on('data',function(data){
-		console.log('got' , data.toString())
+const server = net.createServer((socket) => {
+  console.log('클라이언트가 연결되었습니다.');
+  socket.setEncoding('utf8')
 
-		if(data.trim().toLowerCase()==='quit'){
-			socket.write('Byte')
-			return socket.end()
-		}
+  Vending.findAll({
+    attributes : [
+      'beverage' , 'price' , 'stock', 'imageURL'
+    ]
+  }).then((data) => {
+    const vendingData = JSON.stringify(data);
+    // console.log(vendingData)
+    socket.write(vendingData);
+  }).catch((error)=>{
+    console.log('데이터베이스 쿼리 에러 : ' , error)
+  })
 
-		socket.write(data)
-	})
-})
 
-server.on('listening',function(){
-	console.log(`Server listening on port ${PORT}`);
-})
+  socket.on('close', () => {
+    console.log('클라이언트 연결이 종료되었습니다.');
+  });
 
-server.on('close',function(){
-	console.log('Server is now closed')
-})
+  socket.on('error', (err) => {
+    console.error('에러 발생:', err);
+  });
+});
 
-server.on('error',function(){
-	console.log('Error occured',err.message)
-})
-
-server.listen(PORT)
+server.listen(PORT, () => {
+  console.log(`서버가 ${PORT} 포트에서 대기 중입니다.`);
+});
