@@ -1,5 +1,6 @@
 ﻿import React from 'react' 
 import Stock from '../vending/Stock'
+import Buy from '../vending/Buy'
 import { Card, Button, Col } from 'react-bootstrap'  
 import 'bootstrap/dist/css/bootstrap.min.css'
 
@@ -18,6 +19,7 @@ function Drink({ imageUrl, description, price, stock}) {
               <Stock />
               <small className="text-muted">{stock}개</small>
             </div>
+              <Buy />
             <small className="text-muted">{price}원</small>
           </div>
         </Card.Body>

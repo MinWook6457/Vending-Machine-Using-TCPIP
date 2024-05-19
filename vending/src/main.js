@@ -9,13 +9,17 @@ async function retrieveStockData(data) {
   return data;
 }
 
+async function resultBuyData(data) {
+  return data - 1;
+}
+
 const createWindow = () => {
   const mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
-      nodeIntegrationInWorker: true
+      nodeIntegrationInWorker: true // 해당 설정을 통해 프론트에서 node 기능 사용
     },
   });
 
@@ -34,11 +38,27 @@ app.whenReady().then(() => {
   });
 
 
-  ipcMain.handle('stock', async (event, payload) => {
+  ipcMain.handle('getStock', async (event, payload) => {
+    try {
+      const stockResult = await retrieveStockData(payload);
+      console.log('Retrieving stock data:', stockResult);
+      return stockResult;
+    } catch (error) {
+      console.error('Error while retrieving stock data:', error);
+      throw error;
+    }
+  });
 
-    const stockResult = await retrieveStockData(payload);
-    console.log('ipc main handling')
-    return stockResult;
+ 
+  ipcMain.handle('getBuy', async (event, payload) => {
+    try {
+      const buyResult = await resultBuyData(payload);
+      console.log('Processing buy result:', buyResult);
+      return buyResult;
+    } catch (error) {
+      console.error('Error while processing buy result:', error);
+      throw error;
+    }
   });
 
 });
