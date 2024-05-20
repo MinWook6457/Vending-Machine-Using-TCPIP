@@ -3,6 +3,7 @@ const { app, BrowserWindow, ipcMain} = require('electron');
 const path = require('path');
 
 const {socket,getVendingInfo} = require('./client');
+const { get } = require('http');
 
 if (require('electron-squirrel-startup')) {
   app.quit();
@@ -60,6 +61,16 @@ app.whenReady().then(() => {
       throw error;
     }
   });
+
+  // ipcMain.on('buyButtonClicked',async(event,event) =>{
+  //   try{
+  //     const vendingInfo = getVendingInfo()
+  //     console.log(vendingInfo)
+  //   }catch(err){
+
+  //   }
+
+  // })
 
  
   // ipcMain.handle('getBuy', async (event, payload) => {

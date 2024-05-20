@@ -21,7 +21,7 @@ contextBridge.exposeInMainWorld('info', {
 });
 
 contextBridge.exposeInMainWorld('stock', {
-  getBuy: async () => {
+  getStock: async () => {
     const dtoResult = await mainDTO('stock', {});
     console.log('stock DTO:', dtoResult);
     return ipcRenderer.invoke('getStock', dtoResult);
