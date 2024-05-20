@@ -2,7 +2,8 @@ const net = require('node:net')
 
 const SERVER_IP = 'localhost'
 const SERVER_PORT = 3001
-let test = 0;
+let vendingInfo = 0;
+
 
 console.log('클라이언트 실행')
 
@@ -16,14 +17,9 @@ const socket = net.createConnection({
 
 socket.on('data', async(data) => {
     console.log('recieved data for server:', data);
-
-   
    // test = JSON.parse(data.toString())
     const t = JSON.parse(JSON.stringify(data.toString()))
-
-    test = t
-    
-
+    vendingInfo = t
     console.log('test data : ' + t)
 });
 
@@ -41,9 +37,8 @@ socket.on('connect',() => {
     socket.write('data')
 })
 
-function getTest(){
-    return test
+function getVendingInfo(){
+    return vendingInfo
 }
 
-
-module.exports = {socket, getTest}
+module.exports = {socket, getVendingInfo}

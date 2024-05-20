@@ -1,7 +1,8 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain} = require('electron');
 
 const path = require('path');
-const {socket,getTest} = require('./client')
+
+const {socket,getVendingInfo} = require('./client');
 
 if (require('electron-squirrel-startup')) {
   app.quit();
@@ -12,7 +13,7 @@ async function retrieveStockData(data) {
 }
 
 async function resultBuyData(data) {
-  return data - 1;
+  return data;
 }
 
 const createWindow = () => {
@@ -21,14 +22,18 @@ const createWindow = () => {
     height: 600,
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
-      nodeIntegrationInWorker: true // 해당 설정을 통해 프론트에서 node 기능 사용
-    },
+      nodeIntegrationInWorker: true, // 해당 설정을 통해 프론트에서 node 기능 사용
+      contextIsolation : true,
+      enableRemoteModule : false,
+      },
   });
 
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
   mainWindow.webContents.openDevTools();
 }; 
+
+
 
 app.whenReady().then(() => {
   createWindow();
@@ -40,34 +45,26 @@ app.whenReady().then(() => {
   });
 
   ipcMain.handle('getInfo',async(event,payload) => {
- 
-      // console.log(JSON.parse(test))
-      const test = getTest()
-
-      console.log(test)
-
-      return test
-   
+      const vendingInfo = getVendingInfo()
+      return vendingInfo
   })
 
 
-  // ipcMain.handle('getStock', async (event, payload) => {
-  //   try {
-  //     const stockResult = await retrieveStockData(payload);
-  //     console.log('Retrieving stock data:', stockResult);
-  //     return stockResult;
-  //   } catch (error) {
-  //     console.error('Error while retrieving stock data:', error);
-  //     throw error;
-  //   }
-  // });
+  ipcMain.handle('getStock', async (event, payload) => {
+    try {
+      const stockResult = await retrieveStockData(payload);
+      console.log('Retrieving stock data:', stockResult);
+      return stockResult;
+    } catch (error) {
+      console.error('Error while retrieving stock data:', error);
+      throw error;
+    }
+  });
 
  
   // ipcMain.handle('getBuy', async (event, payload) => {
   //   try {
-  //     const buyResult = await resultBuyData(payload);
-  //     console.log('Processing buy result:', buyResult);
-  //     return buyResult;
+     
   //   } catch (error) {
   //     console.error('Error while processing buy result:', error);
   //     throw error;

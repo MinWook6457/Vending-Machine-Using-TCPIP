@@ -19,3 +19,11 @@ contextBridge.exposeInMainWorld('info', {
     return ipcRenderer.invoke('getInfo', dtoResult);
   }
 });
+
+contextBridge.exposeInMainWorld('stock', {
+  getBuy: async () => {
+    const dtoResult = await mainDTO('stock', {});
+    console.log('stock DTO:', dtoResult);
+    return ipcRenderer.invoke('getStock', dtoResult);
+  }
+});

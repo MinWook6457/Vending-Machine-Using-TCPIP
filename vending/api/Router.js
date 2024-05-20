@@ -1,6 +1,6 @@
 ﻿import { HashRouter, Routes, Route } from 'react-router-dom';
 import Home from './home/Home';
-import Stock from '../api/vending/Stock'
+import Stock from './vending/Stock'
 import * as React from "react";
 const Router = () => {
     return (

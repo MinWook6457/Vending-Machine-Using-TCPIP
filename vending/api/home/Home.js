@@ -14,7 +14,6 @@ const Home = () => {
       console.error('Failed to fetch drink data:', error);
     }
   };
-
   useEffect(() => {
     fetchDrinks();
   }, []);
@@ -30,7 +29,6 @@ const Home = () => {
             <div key={index} className="col-md-4 mb-4">
               <Drink
                 beverage={drink.beverage}
-                imageURL={drink.imageURL}
                 price={drink.price}
                 stock={drink.stock}
               />

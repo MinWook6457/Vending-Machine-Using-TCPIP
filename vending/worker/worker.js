@@ -1,10 +1,7 @@
-﻿// worker.js
-
-// Define the Worker class
+﻿// Define the Worker class
 class MyWorker {
   constructor() {
     // Set up message handle
-
     self.onmessage = (event) => {
       const { type, payload } = event.data;
       switch (type) {
@@ -31,13 +28,14 @@ class MyWorker {
     return stockAmount;
   }
 
-  buyBeverage(item) {
-    const buyItem = parseInt(item);
-    if (isNaN(buyItem)) {
-      console.error('Invalid buy amount:', item);
+  buyBeverage() {
+    const itemStock = 1 ; // 'this' 키워드를 사용하여 호출
+
+    if (isNaN(itemStock)) {
+      console.error('Invalid buy amount:', itemStock);
       return null;
     }
-    return buyItem + 1; // Perform the buy operation
+    return itemStock; // Perform the buy operation
   }
 }
 
