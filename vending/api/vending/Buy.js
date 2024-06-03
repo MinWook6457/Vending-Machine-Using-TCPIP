@@ -3,15 +3,24 @@
 import React, { useState, useEffect } from 'react';
 import MyWorker from 'worker-loader!../../worker/worker.js'; // Adjust the path as necessary
 
-function Buy({ beverage, nowStock, updateStock }) {
+function Buy({ beverage, nowStock }) {
   const [worker, setWorker] = useState(null);
-  const [buyStock, setBuyStock] = useState(null);
+  const [buyStock, setBuyStock] = useState([]);
 
+  console.log(beverage)
+  console.log(nowStock)
+
+  
   useEffect(() => {
+    buyDrink();
     const workerInstance = new MyWorker();
-    console.log(`Created worker instance:`, workerInstance);
+    console.log(`Created worker ${workerInstance} instance:`, workerInstance);
+
+    console.log(buyStock)
 
     setWorker(workerInstance);
+
+  
 
     return () => {
       if (workerInstance) {
@@ -20,42 +29,19 @@ function Buy({ beverage, nowStock, updateStock }) {
     };
   }, []);
 
-  const handleBuyButtonClick = () => {
-    if (worker) {
-      worker.postMessage({ type: 'buy', payload: { beverage } });
+  const buyDrink = async () => {
+    try {
+      const response = await window.buy.getBuy(beverage, nowStock);
+      console.log(response);
+      setBuyStock(response);
+    } catch (error) {
+      console.error('Failed to fetch drink data:', error);
     }
   };
 
-  useEffect(() => {
-    const handleMessage = (event) => {
-      const { type, payload } = event.data;
-      switch (type) {
-        case 'buy':
-          if (payload.error) {
-            console.error(payload.error);
-          } else {
-            setBuyStock(nowStock)
-          }
-          break;
-        default:
-          console.error('Unknown message type:', type);
-      }
-    };
-
-    if (worker) {
-      worker.onmessage = handleMessage;
-    }
-
-    return () => {
-      if (worker) {
-        worker.onmessage = null;
-      }
-    };
-  }, [worker, buyStock]); 
-
   return (
     <div>
-      <button onClick={handleBuyButtonClick}>구매</button>
+      <button onClick={buyDrink}>구매</button>
     </div>
   );
 }

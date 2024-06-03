@@ -5,7 +5,7 @@ import { Card, Col } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Image from './Image';
 
-function Drink({ beverage, price, stock, setStock }) {
+function Drink({ beverage, price, stock }) {
   const handleStockButtonClick = () => {
     console.log(`Checking stock for ${beverage}`);
   };
@@ -25,7 +25,7 @@ function Drink({ beverage, price, stock, setStock }) {
               <Stock beverage={beverage} stock={stock} onStockButtonClick={handleStockButtonClick} />
               <small className="text-muted">{stock}개</small>
             </div>
-            <Buy beverage={beverage} stock={stock} setStock={setStock} onStockButtonClick={handleBuyButtonClick}/>
+            <Buy beverage={beverage} nowStock={stock}/>
             <small className="text-muted">{price}원</small>
           </div>
         </Card.Body>
