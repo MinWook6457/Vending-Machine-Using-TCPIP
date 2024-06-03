@@ -1,39 +1,17 @@
-// Buy.js
-
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import MyWorker from 'worker-loader!../../worker/worker.js'; // Adjust the path as necessary
 
 function Buy({ beverage, nowStock }) {
-  const [worker, setWorker] = useState(null);
   const [buyStock, setBuyStock] = useState([]);
-
-  console.log(beverage)
-  console.log(nowStock)
-
-  
-  useEffect(() => {
-    buyDrink();
-    const workerInstance = new MyWorker();
-    console.log(`Created worker ${workerInstance} instance:`, workerInstance);
-
-    console.log(buyStock)
-
-    setWorker(workerInstance);
-
-  
-
-    return () => {
-      if (workerInstance) {
-        workerInstance.terminate();
-      }
-    };
-  }, []);
 
   const buyDrink = async () => {
     try {
-      const response = await window.buy.getBuy(beverage, nowStock);
+      console.log(beverage,nowStock)
+      const test = {beverage, stock: nowStock}
+      const response = await window.buy.getBuy(test);
       console.log(response);
-      setBuyStock(response);
+      setBuyStock(response.stock);
+      console.log(buyStock)
     } catch (error) {
       console.error('Failed to fetch drink data:', error);
     }
@@ -42,6 +20,7 @@ function Buy({ beverage, nowStock }) {
   return (
     <div>
       <button onClick={buyDrink}>구매</button>
+      <div>남은 재고: {buyStock}</div>
     </div>
   );
 }

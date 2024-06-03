@@ -41,4 +41,25 @@ function getVendingInfo(){
     return vendingInfo
 }
 
-module.exports = {socket, getVendingInfo}
+function buyDrink(beverage, stock) {
+    return new Promise((resolve, reject) => {
+      const payload = JSON.stringify({ beverage, stock });
+      socket.write(payload);
+  
+      socket.once('data', (data) => {
+        try {
+          const response = JSON.parse(data.toString());
+          resolve(response);
+        } catch (error) {
+          reject(new Error('Failed to parse server response'));
+        }
+      });
+  
+      socket.once('error', (err) => {
+        reject(new Error('Socket error: ' + err.message));
+      });
+    });
+  }
+
+
+module.exports = {socket, getVendingInfo, buyDrink}

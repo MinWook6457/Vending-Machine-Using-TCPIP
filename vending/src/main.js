@@ -2,8 +2,9 @@ const { app, BrowserWindow, ipcMain} = require('electron');
 
 const path = require('path');
 
-const {socket,getVendingInfo} = require('./client');
-const { get } = require('http');
+const {socket,getVendingInfo, buyDrink } = require('./client');
+
+
 
 if (require('electron-squirrel-startup')) {
   app.quit();
@@ -55,6 +56,7 @@ app.whenReady().then(() => {
 
   ipcMain.handle('getInfo',async(event,payload) => {
       const vendingInfo = getVendingInfo()
+  
       return vendingInfo
   })
 
@@ -70,17 +72,17 @@ app.whenReady().then(() => {
     }
   });
 
-  ipcMain.handle('getBuy',async(event,payload) => {
-    if (stock.hasOwnProperty(beverage)) {
-      if (stock[beverage].stock > 0) {
-        stock[beverage].stock -= 1;
-        return { success: true, beverage, remainingStock: stock[beverage].stock };
-      } else {
-        return { success: false, message: 'Out of stock' };
-      }
-    } else {
-      return { success: false, message: 'Unknown beverage' };
+  ipcMain.handle('getBuy', async (event, payload) => {
+    const { beverage, stock } = payload;
+    console.log(beverage,stock)
+    try {
+      const response = await buyDrink(beverage, stock);
+      return response;
+    } catch (error) {
+      console.error('Error in getBuy handler:', error);
+      return { success: false, message: error.message };
     }
+  });
 })
 
   // ipcMain.on('buyButtonClicked',async(event,event) =>{
@@ -102,8 +104,6 @@ app.whenReady().then(() => {
   //     throw error;
   //   }
   // });
-
-});
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
