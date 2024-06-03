@@ -1,17 +1,23 @@
-﻿// Define the Worker class
+﻿let stock = {};
+
 class MyWorker {
   constructor() {
-    // Set up message handle
     self.onmessage = (event) => {
       const { type, payload } = event.data;
+
       switch (type) {
+        case 'init':
+          stock = payload.stock;
+          self.postMessage({ type: 'init', payload: stock });
+          break;
         case 'stock':
-          const stockResult = this.checkStock(payload);
-          self.postMessage({ type: 'stock', payload: stockResult });
+          const beverage = payload.beverage;
+          const beverageStock = stock[beverage] ? stock[beverage].stock : null;
+          self.postMessage({ type: 'stock', payload: { beverage, stock: beverageStock } });
           break;
         case 'buy':
-          const result = this.buyBeverage(payload);
-          self.postMessage({ type: 'buy', payload: result });
+          const buyResult = this.buyBeverage(payload.beverage);
+          self.postMessage({ type: 'buy', payload: buyResult });
           break;
         default:
           console.error('Unknown message type:', type);
@@ -19,23 +25,16 @@ class MyWorker {
     };
   }
 
-  checkStock(item) {
-    const stockAmount = parseInt(item);
-    if (isNaN(stockAmount)) {
-      console.error('Invalid stock amount:', item);
-      return null;
+  buyBeverage(beverage) {
+    if (!stock.hasOwnProperty(beverage)) {
+      return { success: false, message: 'Unknown beverage' };
     }
-    return stockAmount;
-  }
-
-  buyBeverage() {
-    const itemStock = 1 ; // 'this' 키워드를 사용하여 호출
-
-    if (isNaN(itemStock)) {
-      console.error('Invalid buy amount:', itemStock);
-      return null;
+    if (stock[beverage].stock > 0) {
+      stock[beverage].stock -= 1;
+      return { success: true, beverage, remainingStock: stock[beverage].stock };
+    } else {
+      return { success: false, message: 'Out of stock' };
     }
-    return itemStock; // Perform the buy operation
   }
 }
 

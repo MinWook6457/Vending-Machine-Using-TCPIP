@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect } from 'react';
-import Drink from './Drink';  // Drink 컴포넌트를 가져오기
+import Drink from './Drink';
 
 const Home = () => {
   const [drinks, setDrinks] = useState([]);
@@ -14,6 +14,7 @@ const Home = () => {
       console.error('Failed to fetch drink data:', error);
     }
   };
+
   useEffect(() => {
     fetchDrinks();
   }, []);
@@ -25,7 +26,7 @@ const Home = () => {
       </div>
       <div className="drink-list">
         <div className="row">
-          {drinks.map((drink, index) => (
+          {drinks && drinks.map((drink, index) => (
             <div key={index} className="col-md-4 mb-4">
               <Drink
                 beverage={drink.beverage}

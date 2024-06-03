@@ -1,13 +1,15 @@
+// Buy.js
+
 import React, { useState, useEffect } from 'react';
 import MyWorker from 'worker-loader!../../worker/worker.js'; // Adjust the path as necessary
 
-function Buy({ beverage }) { // beverage를 props로 받아옴
-  const [stock, setStock] = useState(null);
+function Buy({ beverage, nowStock, updateStock }) {
   const [worker, setWorker] = useState(null);
+  const [buyStock, setBuyStock] = useState(null);
 
   useEffect(() => {
     const workerInstance = new MyWorker();
-    console.log(`Created worker ${workerInstance} instance:`, workerInstance);
+    console.log(`Created worker instance:`, workerInstance);
 
     setWorker(workerInstance);
 
@@ -20,21 +22,19 @@ function Buy({ beverage }) { // beverage를 props로 받아옴
 
   const handleBuyButtonClick = () => {
     if (worker) {
-      worker.postMessage({ type: 'buy', payload: beverage });
+      worker.postMessage({ type: 'buy', payload: { beverage } });
     }
   };
 
   useEffect(() => {
     const handleMessage = (event) => {
       const { type, payload } = event.data;
-      console.log(type);
-      console.log(payload);
       switch (type) {
         case 'buy':
           if (payload.error) {
             console.error(payload.error);
           } else {
-            setStock(payload.stock);
+            setBuyStock(nowStock)
           }
           break;
         default:
@@ -51,14 +51,11 @@ function Buy({ beverage }) { // beverage를 props로 받아옴
         worker.onmessage = null;
       }
     };
-  }, [beverage, worker]); // beverage를 의존성 배열에 추가
+  }, [worker, buyStock]); 
 
   return (
     <div>
       <button onClick={handleBuyButtonClick}>구매</button>
-      {stock !== null && (
-        <p>{beverage}: {stock} left</p>
-      )}
     </div>
   );
 }

@@ -14,7 +14,15 @@ async function retrieveStockData(data) {
 }
 
 async function resultBuyData(data) {
-  return data;
+  const vendingInfo = await getVendingInfo();
+
+  const item = vendingInfo.items.find(item => item.id === data.itemId);
+  if(item && item.stock > 0){
+    item.stock -= 1;
+    return {success : true, item};
+  }else{
+    return {success : false, message : 'Item out of stock or not found'};
+  }
 }
 
 const createWindow = () => {
@@ -61,6 +69,19 @@ app.whenReady().then(() => {
       throw error;
     }
   });
+
+  ipcMain.handle('getBuy',async(event,payload) => {
+    if (stock.hasOwnProperty(beverage)) {
+      if (stock[beverage].stock > 0) {
+        stock[beverage].stock -= 1;
+        return { success: true, beverage, remainingStock: stock[beverage].stock };
+      } else {
+        return { success: false, message: 'Out of stock' };
+      }
+    } else {
+      return { success: false, message: 'Unknown beverage' };
+    }
+})
 
   // ipcMain.on('buyButtonClicked',async(event,event) =>{
   //   try{
