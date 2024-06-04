@@ -44,7 +44,8 @@ function getVendingInfo(){
 function buyDrink(beverage, stock) {
     return new Promise((resolve, reject) => {
       const payload = JSON.stringify({ beverage, stock });
-      socket.write(payload);
+      console.log('서버에 구매 데이터 전달')
+      socket.write(`buy${payload}`);
   
       socket.once('data', (data) => {
         try {

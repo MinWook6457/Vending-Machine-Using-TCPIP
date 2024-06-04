@@ -8,28 +8,64 @@ sequelize.sync({ force: false })
     console.log('데이터베이스 연결 성공');
   })
   .catch((err) => {
-    console.error(err);
+    console.error('데이터베이스 연결 실패:', err);
   });
-
-
-
 
 const server = net.createServer((socket) => {
   console.log('클라이언트가 연결되었습니다.');
-  socket.setEncoding('utf8')
+  socket.setEncoding('utf8');
 
   Vending.findAll({
-    attributes : [
-      'beverage' , 'price' , 'stock', 'imageURL'
-    ]
+    attributes: ['beverage', 'price', 'stock', 'imageURL']
   }).then((data) => {
     const vendingData = JSON.stringify(data);
-    // console.log(vendingData)
     socket.write(vendingData);
-  }).catch((error)=>{
-    console.log('데이터베이스 쿼리 에러 : ' , error)
-  })
+  }).catch((error) => {
+    console.log('데이터베이스 쿼리 에러:', error);
+  });
 
+  socket.on('data', (data) => {
+    console.log('클라이언트로부터 받은 데이터:', data.toString());
+
+    if (data.startsWith('buy')) {
+      const payload = data.substring(3); 
+      try {
+        const { beverage, stock } = JSON.parse(payload);
+        console.log(`구매 요청 - 음료수: ${beverage}, 재고: ${stock}`);
+
+        Vending.findOne({
+          where: { beverage },
+          attributes: ['beverage', 'stock']
+        }).then((item) => {
+          if (item) {
+            if (item.stock >= 0) {
+              item.stock -= 1;
+              Vending.update(
+                { stock: item.stock },
+                { where: { beverage } }
+              ).then(()=>{
+                socket.write(JSON.stringify({ success: true, message: '구매 완료', beverage, remainingStock: item.stock }));
+              }).catch((updateError) => {
+                console.error('재고 업데이트 실패:', updateError);
+                socket.write(JSON.stringify({ success: false, message: '재고 업데이트 실패' }));
+              });
+            } else {
+              socket.write(JSON.stringify({ success: false, message: '재고 부족' }));
+            }
+          } else {
+            socket.write(JSON.stringify({ success: false, message: '음료를 찾을 수 없음' }));
+          }
+        }).catch((findError) => {
+          console.error('음료 검색 실패:', findError);
+          socket.write(JSON.stringify({ success: false, message: '음료 검색 실패' }));
+        });
+
+      } catch (error) {
+        console.error('구매 데이터 파싱 에러:', error);
+        socket.write(JSON.stringify({ success: false, message: '구매 실패' }));
+      }
+    }
+  });
 
   socket.on('close', () => {
     console.log('클라이언트 연결이 종료되었습니다.');

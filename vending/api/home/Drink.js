@@ -21,10 +21,10 @@ function Drink({ beverage, price, stock }) {
         <Card.Body>
           <Card.Text>{beverage}</Card.Text>
           <div className="d-flex justify-content-between align-items-center">
-            <div className="btn-group">
+            {/* <div className="btn-group">
               <Stock beverage={beverage} stock={stock} onStockButtonClick={handleStockButtonClick} />
               <small className="text-muted">{stock}개</small>
-            </div>
+            </div> */}
             <Buy beverage={beverage} nowStock={stock}/>
             <small className="text-muted">{price}원</small>
           </div>
