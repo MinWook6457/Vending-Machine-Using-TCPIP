@@ -1,5 +1,6 @@
 ﻿import React, { useState, useEffect } from 'react';
 import Drink from './Drink';
+import MoneyImage from './MoneyImage';
 
 const Home = () => {
   const [drinks, setDrinks] = useState([]);
@@ -35,6 +36,25 @@ const Home = () => {
               />
             </div>
           ))}
+        </div>
+      </div>
+      <div className="money-image-list">
+        <div className="row">
+          <div className="col-md-2">
+            <MoneyImage name="ten" />
+          </div>
+          <div className="col-md-2">
+            <MoneyImage name="fifty" />
+          </div>
+          <div className="col-md-2">
+            <MoneyImage name="oneHundred" />
+          </div>
+          <div className="col-md-2">
+            <MoneyImage name="fiveHundred" />
+          </div>
+          <div className="col-md-2">
+            <MoneyImage name="oneThousand" />
+          </div>
         </div>
       </div>
     </div>

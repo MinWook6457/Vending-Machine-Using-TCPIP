@@ -6,13 +6,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Image from './Image';
 
 function Drink({ beverage, price, stock }) {
-  const handleStockButtonClick = () => {
-    console.log(`Checking stock for ${beverage}`);
-  };
-
-  const handleBuyButtonClick = () => {
-    console.log(`구매 버튼 클릭`);
-  };
 
   return (
     <Col md={10} className="mb-4">
@@ -30,7 +23,13 @@ function Drink({ beverage, price, stock }) {
           </div>
         </Card.Body>
       </Card>
+
+
     </Col>
+
+
+
+        
   );
 }
 

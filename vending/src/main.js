@@ -5,25 +5,12 @@ const path = require('path');
 const {socket,getVendingInfo, buyDrink } = require('./client');
 
 
-
 if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
 async function retrieveStockData(data) {
   return data;
-}
-
-async function resultBuyData(data) {
-  const vendingInfo = await getVendingInfo();
-
-  const item = vendingInfo.items.find(item => item.id === data.itemId);
-  if(item && item.stock > 0){
-    item.stock -= 1;
-    return {success : true, item};
-  }else{
-    return {success : false, message : 'Item out of stock or not found'};
-  }
 }
 
 const createWindow = () => {
@@ -43,11 +30,27 @@ const createWindow = () => {
   mainWindow.webContents.openDevTools();
 }; 
 
+const createWindow2 = () => {
+  const mainWindow = new BrowserWindow({
+    width: 800,
+    height: 600,
+    webPreferences: {
+      preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
+      nodeIntegrationInWorker: true, // 해당 설정을 통해 프론트에서 node 기능 사용
+      contextIsolation : true,
+      enableRemoteModule : false,
+      },
+  });
+
+  mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
+
+  mainWindow.webContents.openDevTools();
+}; 
 
 
 app.whenReady().then(() => {
   createWindow();
-
+  createWindow2();
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow();
@@ -110,5 +113,3 @@ app.on('window-all-closed', () => {
     app.quit();
   }
 });
-
-

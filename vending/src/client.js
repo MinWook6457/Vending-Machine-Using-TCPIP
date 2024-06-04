@@ -1,7 +1,8 @@
 const net = require('node:net')
 
 const SERVER_IP = 'localhost'
-const SERVER_PORT = 3001
+const SERVER_PORT1 = 3001
+
 let vendingInfo = 0;
 
 
@@ -9,10 +10,9 @@ console.log('클라이언트 실행')
 
 const socket = net.createConnection({
     host: SERVER_IP,
-    port: SERVER_PORT
+    port: SERVER_PORT1
 }, () => {
     console.log('서버에 연결되었습니다.');
-
 });
 
 socket.on('data', async(data) => {
@@ -57,10 +57,12 @@ function buyDrink(beverage, stock) {
       });
   
       socket.once('error', (err) => {
-        reject(new Error('Socket error: ' + err.message));
+        reject(new Error('socket1 error: ' + err.message));
       });
     });
   }
 
 
-module.exports = {socket, getVendingInfo, buyDrink}
+module.exports = {
+  socket, getVendingInfo, buyDrink,
+}

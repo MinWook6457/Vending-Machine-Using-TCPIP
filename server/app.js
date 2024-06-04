@@ -1,7 +1,9 @@
 require('dotenv').config();
 const net = require('net');
-const PORT = 3001;
 const { Vending, sequelize } = require('./models/index'); // Ensure you have the correct path
+
+const MAX_CLIENTS = 2;
+const clients = []; // 클라이언트 배열
 
 sequelize.sync({ force: false })
   .then(() => {
@@ -11,9 +13,19 @@ sequelize.sync({ force: false })
     console.error('데이터베이스 연결 실패:', err);
   });
 
-const server = net.createServer((socket) => {
+// 서버 1 설정 (포트: 3001)
+const PORT1 = 3001;
+const server1 = net.createServer((socket) => {
   console.log('클라이언트가 연결되었습니다.');
   socket.setEncoding('utf8');
+
+  if (clients.length >= MAX_CLIENTS) {
+    console.log('최대 클라이언트 수를 초과하여 연결을 거부합니다.');
+    socket.destroy();
+    return;
+  }
+
+  clients.push(socket);
 
   Vending.findAll({
     attributes: ['beverage', 'price', 'stock', 'imageURL']
@@ -43,7 +55,7 @@ const server = net.createServer((socket) => {
               Vending.update(
                 { stock: item.stock },
                 { where: { beverage } }
-              ).then(()=>{
+              ).then(() => {
                 socket.write(JSON.stringify({ success: true, message: '구매 완료', beverage, remainingStock: item.stock }));
               }).catch((updateError) => {
                 console.error('재고 업데이트 실패:', updateError);
@@ -69,6 +81,10 @@ const server = net.createServer((socket) => {
 
   socket.on('close', () => {
     console.log('클라이언트 연결이 종료되었습니다.');
+    const index = clients.indexOf(socket);
+    if (index !== -1) {
+      clients.splice(index, 1);
+    }
   });
 
   socket.on('error', (err) => {
@@ -76,6 +92,6 @@ const server = net.createServer((socket) => {
   });
 });
 
-server.listen(PORT, () => {
-  console.log(`서버가 ${PORT} 포트에서 대기 중입니다.`);
+server1.listen(PORT1, () => {
+  console.log(`서버 1가 ${PORT1} 포트에서 대기 중입니다.`);
 });
