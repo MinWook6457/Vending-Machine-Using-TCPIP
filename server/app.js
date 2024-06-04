@@ -2,7 +2,6 @@ require('dotenv').config();
 const net = require('net');
 const { Vending, sequelize } = require('./models/index'); // Ensure you have the correct path
 
-const MAX_CLIENTS = 2;
 const clients = []; // 클라이언트 배열
 
 sequelize.sync({ force: false })
@@ -19,7 +18,7 @@ const server1 = net.createServer((socket) => {
   console.log('클라이언트가 연결되었습니다.');
   socket.setEncoding('utf8');
 
-  if (clients.length >= MAX_CLIENTS) {
+  if (clients.length >= 2) {
     console.log('최대 클라이언트 수를 초과하여 연결을 거부합니다.');
     socket.destroy();
     return;
@@ -38,6 +37,9 @@ const server1 = net.createServer((socket) => {
 
   socket.on('data', (data) => {
     console.log('클라이언트로부터 받은 데이터:', data.toString());
+
+
+    
 
     if (data.startsWith('buy')) {
       const payload = data.substring(3); 

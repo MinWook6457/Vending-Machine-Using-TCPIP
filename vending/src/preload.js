@@ -12,6 +12,10 @@ const mainDTO = async (command, data) => {
   return clientData;
 };
 
+contextBridge.exposeInMainWorld('ipcRenderer',{
+  ipcRenderer 
+})
+
 contextBridge.exposeInMainWorld('info', {
   getInfo: async () => {
     const dtoResult = await mainDTO('info', {});

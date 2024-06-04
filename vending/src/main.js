@@ -57,6 +57,10 @@ app.whenReady().then(() => {
     }
   });
 
+  ipcMain.handle('refresh',async(event,payload) => {
+    
+  })
+
   ipcMain.handle('getInfo',async(event,payload) => {
       const vendingInfo = getVendingInfo()
   

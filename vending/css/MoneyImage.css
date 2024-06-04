@@ -1,5 +1,5 @@
 .money-image {
-    width: 150px;
-    height: 150px;
+    width: 50px;
+    height: 50px;
     object-fit: contain; /* or 'cover' based on your preference */
   }

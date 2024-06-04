@@ -5,7 +5,11 @@ function Buy({ beverage, nowStock }) {
   const [buyStock, setBuyStock] = useState([]);
 
   useEffect(() => {
-    setBuyStock(nowStock)
+    if (window.ipcRenderer) {
+      window.ipcRenderer.ipcRenderer.on('refresh', (data) => {
+        console.log(data)
+      });
+    }
   }, []);
 
   const buyDrink = async () => {
