@@ -12,9 +12,17 @@ const mainDTO = async (command, data) => {
   return clientData;
 };
 
-contextBridge.exposeInMainWorld('ipcRenderer',{
-  ipcRenderer 
-})
+contextBridge.exposeInMainWorld('ipcRenderer', {
+  on: (channel, func) => {
+    ipcRenderer.on(channel, (event, ...args) => func(event, ...args));
+  },
+  invoke: (channel, ...args) => {
+    return ipcRenderer.invoke(channel, ...args);
+  },
+  removeAllListeners: (channel) => {
+    ipcRenderer.removeAllListeners(channel);
+  }
+});
 
 contextBridge.exposeInMainWorld('info', {
   getInfo: async () => {
@@ -42,5 +50,12 @@ contextBridge.exposeInMainWorld('buy', {
     const dtoResult = await mainDTO('buy', { beverage, stock : stock });
     console.log('buy DTO:', dtoResult.clientData);
     return ipcRenderer.invoke('getBuy', dtoResult.clientData);
+  }
+})
+
+contextBridge.exposeInMainWorld('coin',{
+  getCoin : async() => {
+    const dtoResult = await mainDTO('coin',{});
+    return ipcRenderer.invoke('getCoin',dtoResult);
   }
 })

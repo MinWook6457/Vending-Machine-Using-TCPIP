@@ -1,8 +1,8 @@
 require('dotenv').config();
 const net = require('net');
-const { Vending, sequelize } = require('./models/index'); // Ensure you have the correct path
+const { Vending, Coin, sequelize } = require('./models/index');
 
-const clients = []; // 클라이언트 배열
+const clients = [];
 
 sequelize.sync({ force: false })
   .then(() => {
@@ -12,7 +12,6 @@ sequelize.sync({ force: false })
     console.error('데이터베이스 연결 실패:', err);
   });
 
-// 서버 1 설정 (포트: 3001)
 const PORT1 = 3001;
 const server1 = net.createServer((socket) => {
   console.log('클라이언트가 연결되었습니다.');
@@ -26,21 +25,11 @@ const server1 = net.createServer((socket) => {
 
   clients.push(socket);
 
-  Vending.findAll({
-    attributes: ['beverage', 'price', 'stock', 'imageURL']
-  }).then((data) => {
-    const vendingData = JSON.stringify(data);
-    socket.write(vendingData);
-  }).catch((error) => {
-    console.log('데이터베이스 쿼리 에러:', error);
-  });
+  sendVendingData(socket);
+  sendCoinData(socket);
 
   socket.on('data', (data) => {
     console.log('클라이언트로부터 받은 데이터:', data.toString());
-
-
-    
-
     if (data.startsWith('buy')) {
       const payload = data.substring(3); 
       try {
@@ -97,3 +86,25 @@ const server1 = net.createServer((socket) => {
 server1.listen(PORT1, () => {
   console.log(`서버 1가 ${PORT1} 포트에서 대기 중입니다.`);
 });
+
+function sendVendingData(socket) {
+  Vending.findAll({
+    attributes: ['beverage', 'price', 'stock']
+  }).then((data) => {
+    const vendingData = JSON.stringify(data);
+    socket.write(vendingData + '|');
+  }).catch((error) => {
+    console.log('데이터베이스 쿼리 에러:', error);
+  });
+}
+
+function sendCoinData(socket) {
+  Coin.findAll({
+    attributes: ['unit', 'price', 'change']
+  }).then((data) => {
+    const coinData = JSON.stringify(data);
+    socket.write(coinData);
+  }).catch((error) => {
+    console.log('데이터베이스 쿼리 에러:', error);
+  });
+}

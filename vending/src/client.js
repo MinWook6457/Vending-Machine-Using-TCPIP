@@ -1,12 +1,12 @@
-const net = require('node:net')
+const net = require('node:net');
 
-const SERVER_IP = 'localhost'
-const SERVER_PORT1 = 3001
+const SERVER_IP = 'localhost';
+const SERVER_PORT1 = 3001;
 
-let vendingInfo = 0;
+let vendingInfo = null;
+let coinInfo = null;
 
-
-console.log('클라이언트 실행')
+console.log('클라이언트 실행');
 
 const socket = net.createConnection({
     host: SERVER_IP,
@@ -15,12 +15,21 @@ const socket = net.createConnection({
     console.log('서버에 연결되었습니다.');
 });
 
-socket.on('data', async(data) => {
-    console.log('recieved data for server:', data);
-   // test = JSON.parse(data.toString())
-    const t = JSON.parse(JSON.stringify(data.toString()))
-    vendingInfo = t
-    console.log('test data : ' + t)
+socket.on('data', (data) => {
+    console.log('received data from server:', data.toString());
+    const dataString = data.toString();
+
+    const [vendingDataString, coinDataString] = dataString.split('|');  // 구분자를 사용하여 분리
+
+    try {
+        vendingInfo = JSON.parse(vendingDataString);
+        console.log('Vending Info:', vendingInfo);
+
+        coinInfo = JSON.parse(coinDataString);
+        console.log('Coin Info:', coinInfo);
+    } catch (error) {
+        console.error('JSON 파싱 에러:', error);
+    }
 });
 
 socket.on('close', () => {
@@ -31,38 +40,40 @@ socket.on('error', (err) => {
     console.error('에러 발생:', err);
 });
 
-socket.on('connect',() => {
-    console.log('connect test')
+socket.on('connect', () => {
+    console.log('connect test');
+    socket.write('data');
+});
 
-    socket.write('data')
-})
-
-function getVendingInfo(){
-    return vendingInfo
+function getVendingInfo() {
+    return vendingInfo;
 }
 
 function buyDrink(beverage, stock) {
     return new Promise((resolve, reject) => {
-      const payload = JSON.stringify({ beverage, stock });
-      console.log('서버에 구매 데이터 전달')
-      socket.write(`buy${payload}`);
-  
-      socket.once('data', (data) => {
-        try {
-          const response = JSON.parse(data.toString());
-          resolve(response);
-        } catch (error) {
-          reject(new Error('Failed to parse server response'));
-        }
-      });
-  
-      socket.once('error', (err) => {
-        reject(new Error('socket1 error: ' + err.message));
-      });
-    });
-  }
+        const payload = JSON.stringify({ beverage, stock });
+        console.log('서버에 구매 데이터 전달');
+        socket.write(`buy${payload}`);
 
+        socket.once('data', (data) => {
+            try {
+                const response = JSON.parse(data.toString());
+                resolve(response);
+            } catch (error) {
+                reject(new Error('Failed to parse server response'));
+            }
+        });
+
+        socket.once('error', (err) => {
+            reject(new Error('socket1 error: ' + err.message));
+        });
+    });
+}
+
+function getCoinInfo() {
+    return coinInfo;
+}
 
 module.exports = {
-  socket, getVendingInfo, buyDrink,
-}
+    socket, getVendingInfo, buyDrink, getCoinInfo
+};

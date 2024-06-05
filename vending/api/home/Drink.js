@@ -23,13 +23,7 @@ function Drink({ beverage, price, stock }) {
           </div>
         </Card.Body>
       </Card>
-
-
-    </Col>
-
-
-
-        
+    </Col>  
   );
 }
 

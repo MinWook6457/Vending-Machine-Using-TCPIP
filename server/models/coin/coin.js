@@ -34,11 +34,10 @@ module.exports = (sequelize, DataTypes) => {
             collate: 'utf8_general_ci'
         }
     )
-    /*
+    
     coin.associate = (models) => {
-        coin.hasMany(models.Command, { foreignKey: 'user_id'})
-        // user.hasMany(models.RefreshToken, {foreignKey : 'user_id'})
+        coin.belongsTo(models.Vending, {foreignKey : 'vending_id'})
     }
-    */
+    
     return coin;
 }

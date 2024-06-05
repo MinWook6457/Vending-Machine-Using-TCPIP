@@ -6,12 +6,12 @@ function Buy({ beverage, nowStock }) {
 
   useEffect(() => {
     if (window.ipcRenderer) {
-      window.ipcRenderer.ipcRenderer.on('refresh', (data) => {
-        console.log(data)
+      const payload = { beverage: beverage }; 
+      window.ipcRenderer.invoke('refresh', payload).then((data) => {
+        setBuyStock(data.stock);
       });
     }
   }, []);
-
   const buyDrink = async () => {
     try {
       console.log(beverage,nowStock)
@@ -19,7 +19,6 @@ function Buy({ beverage, nowStock }) {
       const response = await window.buy.getBuy(test);
       console.log(response);
       setBuyStock(response.remainingStock);
-      console.log(response.remainingStock)
     } catch (error) {
       console.error('Failed to fetch drink data:', error);
     }
