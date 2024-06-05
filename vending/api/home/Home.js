@@ -22,7 +22,7 @@ const Home = () => {
   }, []);
 
   const coinClick = (value, name) => {
-    window.ipcRenderer.invoke('coin', {value,name} );
+    window.ipcRenderer.invoke('getCoin', {value,name} );
     setInputCoin(prevInputCoin => prevInputCoin + value);
   };
 

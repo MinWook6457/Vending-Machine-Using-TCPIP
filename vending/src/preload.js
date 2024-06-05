@@ -53,9 +53,10 @@ contextBridge.exposeInMainWorld('buy', {
   }
 })
 
-contextBridge.exposeInMainWorld('coin',{
-  getCoin : async() => {
-    const dtoResult = await mainDTO('coin',{});
-    return ipcRenderer.invoke('getCoin',dtoResult);
-  }
-})
+// contextBridge.exposeInMainWorld('coin',{
+//   getCoin : async(payload) => {
+//     const {value , name} = payload;
+//     const dtoResult = await mainDTO('coin',{value : value, name : name});
+//     return ipcRenderer.invoke('getCoin',dtoResult);
+//   }
+// })

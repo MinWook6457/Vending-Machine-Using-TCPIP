@@ -22,14 +22,23 @@ socket.on('data', (data) => {
     const [vendingDataString, coinDataString] = dataString.split('|');  // 구분자를 사용하여 분리
 
     try {
+      if (vendingDataString) {
         vendingInfo = JSON.parse(vendingDataString);
         console.log('Vending Info:', vendingInfo);
+       } else {
+        console.warn('Vending data is undefined');
+       }
 
-        coinInfo = JSON.parse(coinDataString);
-        console.log('Coin Info:', coinInfo);
+        if (coinDataString) {
+         coinInfo = JSON.parse(coinDataString);
+         console.log('Coin Info:', coinInfo);
+      } else {
+        console.warn('Coin data is undefined');
+      }
     } catch (error) {
         console.error('JSON 파싱 에러:', error);
     }
+    
 });
 
 socket.on('close', () => {
@@ -70,10 +79,33 @@ function buyDrink(beverage, stock) {
     });
 }
 
+function inputCoin(value,name){
+  return new Promise((resolve,reject) => {
+      const payload = JSON.stringify({value,name});
+
+      console.log(`선택된 화폐 정보` + payload);
+
+      socket.write(`input${payload}`);
+
+      socket.once('data', (data) => {
+        try {
+            const response = JSON.parse(data.toString());
+            resolve(response);
+        } catch (error) {
+            reject(new Error('Failed to parse server response'));
+        }
+       });
+
+       socket.once('error', (err) => {
+         reject(new Error('socket1 error: ' + err.message));
+       });
+  })
+}
+
 function getCoinInfo() {
     return coinInfo;
 }
 
 module.exports = {
-    socket, getVendingInfo, buyDrink, getCoinInfo
+    socket, getVendingInfo, buyDrink, getCoinInfo, inputCoin
 };
