@@ -91,9 +91,8 @@ const server1 = net.createServer((socket) => {
         console.log(`잔돈 반환 요청 - 투입된 금액 : ${inputCoin}`);
 
         const change = await calculateChange(inputCoin);
-        socket.write(JSON.stringify({ success: true, message: '잔돈 반환 완료', change }));
-
         await updateCoinChange(change);
+        socket.write(JSON.stringify({ success: true, message: '잔돈 반환 완료', change }));
       } catch (error) {
         console.error('잔돈 데이터 처리 에러:', error);
         socket.write(JSON.stringify({ success: false, message: '잔돈 반환 실패' }));
@@ -114,7 +113,6 @@ const server1 = net.createServer((socket) => {
         }
       }catch(error){
         socket.write(JSON.stringify({ success: false, message: '관리자 모드 에러' }));
-
       }
     }
 
@@ -187,6 +185,9 @@ async function updateCoinChange(change) {
       const coin = await Coin.findOne({ where: { price: parseInt(unit) }, attributes: ['price', 'change'] });
       if (coin) {
         const newChange = coin.change - count;
+        if(newChange === 0){
+          socket.write(JSON.stringify({ success: false, message: '잔돈 반환 실패, 잔돈이 부족합니다.' }));
+        }     
         await Coin.update({ change: newChange }, { where: { price: parseInt(unit) } });
         console.log(`${unit} 코인 업데이트 성공`);
       }
