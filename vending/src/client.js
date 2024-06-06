@@ -6,6 +6,8 @@ const SERVER_PORT1 = 3001;
 let vendingInfo = null;
 let coinInfo = null;
 
+let oneThousandCount = 0;
+
 console.log('클라이언트 실행');
 
 const socket = net.createConnection({
@@ -107,6 +109,52 @@ function getCoinInfo() {
     return coinInfo;
 }
 
+function getChange(inputCoin){
+    return new Promise((resolve,reject) => {
+        const payload = JSON.stringify({inputCoin});
+  
+        console.log(`잔돈 금액` + payload);
+  
+        socket.write(`change${payload}`);
+  
+        socket.once('data', (data) => {
+          try {
+              const response = JSON.parse(data.toString());
+              resolve(response);
+          } catch (error) {
+              reject(new Error('Failed to parse server response'));
+          }
+         });
+  
+         socket.once('error', (err) => {
+           reject(new Error('socket1 error: ' + err.message));
+         });
+    })
+}
+
+function checkPassword(password){
+    return new Promise((resolve,reject) => {
+        const payload = JSON.stringify({password});
+  
+        console.log(`입력된 비밀번호` + password);
+  
+        socket.write(`password${payload}`);
+  
+        socket.once('data', (data) => {
+          try {
+              const response = JSON.parse(data.toString());
+              resolve(response);
+          } catch (error) {
+              reject(new Error('Failed to parse server response'));
+          }
+         });
+  
+         socket.once('error', (err) => {
+           reject(new Error('socket1 error: ' + err.message));
+         });
+    })
+}
+
 module.exports = {
-    socket, getVendingInfo, buyDrink, getCoinInfo, inputCoin
+    socket, getVendingInfo, buyDrink, getCoinInfo, inputCoin, getChange, checkPassword
 };

@@ -10,6 +10,7 @@ export default function Image({name}){
     return <img src={test[name]} width={150}></img>
 }
 
+
 export const test = {
     water : waterImg,
     coffee : coffeeImg,

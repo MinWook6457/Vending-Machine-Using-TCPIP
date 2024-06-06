@@ -1,31 +1,26 @@
-import React, { useEffect, useState } from 'react';
-import MyWorker from 'worker-loader!../../worker/worker.js'; // Adjust the path as necessary
-import Drink from '../home/Drink';
 
-function Buy({ beverage, nowStock,price, inputCoin,updateInputCoin}) {
-  const [buyStock, setBuyStock] = useState([]);
+import React, { useState } from 'react';
 
-  useEffect(() => {
-    if (window.ipcRenderer) {
-      const payload = { beverage: beverage }; 
-      window.ipcRenderer.invoke('refresh', payload).then((data) => {
-        setBuyStock(data.stock);
-      });
-    }
-  }, []);
+function Buy({ beverage, nowStock, price, inputCoin, updateInputCoin, updateDrinkStock }) {
+  const [buyStock, setBuyStock] = useState(nowStock);
+
   const buyDrink = async () => {
-    if(inputCoin < price){
+    if (inputCoin < price) {
       alert('Not enough coins!');
       return;
     }
 
+    if(buyStock === 0){
+      alert('not Enough stocks!');
+      return;
+    }
 
     try {
-      console.log(beverage,nowStock,price,inputCoin)
-      const test = {beverage, stock: nowStock, price, inputCoin}
+      const test = { beverage, stock: buyStock, price, inputCoin }; // buyStock 사용
       const response = await window.buy.getBuy(test);
-      console.log(response);
       setBuyStock(response.remainingStock);
+      updateInputCoin(price);
+      updateDrinkStock(beverage, response.remainingStock);
     } catch (error) {
       console.error('Failed to fetch drink data:', error);
     }

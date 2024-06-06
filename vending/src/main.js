@@ -1,6 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
-const { socket1, getVendingInfo, buyDrink , getCoinInfo, inputCoin} = require('./client');
+const { socket1, getVendingInfo, buyDrink , getCoinInfo, inputCoin, getChange, checkPassword} = require('./client');
 
 if (require('electron-squirrel-startup')) {
   app.quit();
@@ -31,14 +31,14 @@ app.whenReady().then(() => {
   });
 
 
-  ipcMain.handle('refresh', async (event, payload) => {
-    const { beverage } = payload;
-    console.log(`Received beverage: ${beverage}`);
+  // ipcMain.handle('refresh', async (event, payload) => {
+  //   const { beverage } = payload;
+  //   console.log(`Received beverage: ${beverage}`);
 
-    const refreshData = getVendingInfo();
-   // broadcast('refresh', refreshJsonData);
-    return refreshData;
-  });
+  //   const refreshData = getVendingInfo();
+  //  // broadcast('refresh', refreshJsonData);
+  //   return refreshData;
+  // });
 
   ipcMain.handle('getInfo', async () => {
     const vendingInfo = getVendingInfo();
@@ -80,12 +80,35 @@ app.whenReady().then(() => {
     const coinName = payload.name;
     try{
       const response = await inputCoin(coinValue, coinName);
+
+      console.log(response)
+
       return response;
     }catch(error){
       return { success: false, message: error.message };
     }
   })
 
+  ipcMain.handle('getChange',async(event,payload) => {
+    const change = payload.inputCoin;
+    try{
+      const response = await getChange(change);
+      return response
+    }catch(error){
+      return { success : false, message : error.message}
+    }
+  })
+
+  ipcMain.handle('checkPassword',async(event,payload) => {
+    const password = payload.password;
+    console.log(password)
+    try{
+      const response = await checkPassword(password);
+      return response
+    }catch(error){
+      return { success : false, message : error.message}
+    }
+  })
 
 });
 

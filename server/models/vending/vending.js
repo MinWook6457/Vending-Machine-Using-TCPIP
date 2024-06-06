@@ -24,11 +24,6 @@ module.exports = (sequelize, DataTypes) => {
                 allowNull : false,
                 comment : '음료 재고'
             },
-            imageUrl : {
-                type: DataTypes.STRING(255),
-                allowNull: false,
-                comment: 'url'
-            },
             createdAt: {
                 type: DataTypes.DATE,
                 defaultValue: DataTypes.NOW,
