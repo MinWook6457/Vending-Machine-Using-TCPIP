@@ -58,9 +58,10 @@ function getVendingInfo() {
     return vendingInfo;
 }
 
-function buyDrink(beverage, stock) {
+function buyDrink(beverage, stock, price, inputCoin) {
     return new Promise((resolve, reject) => {
-        const payload = JSON.stringify({ beverage, stock });
+        const payload = JSON.stringify({ beverage, stock, price, inputCoin });
+        console.log(payload)
         console.log('서버에 구매 데이터 전달');
         socket.write(`buy${payload}`);
 

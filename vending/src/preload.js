@@ -44,10 +44,11 @@ contextBridge.exposeInMainWorld('buy', {
   getBuy: async (payload) => {
     const beverage = payload.beverage;
     const stock = payload.stock;
+    const price = payload.price;
+    const inputCoin = payload.inputCoin;
+    console.log(beverage,stock,price,inputCoin)
 
-    console.log(beverage,stock)
-
-    const dtoResult = await mainDTO('buy', { beverage, stock : stock });
+    const dtoResult = await mainDTO('buy', { beverage, stock : stock , price , inputCoin });
     console.log('buy DTO:', dtoResult.clientData);
     return ipcRenderer.invoke('getBuy', dtoResult.clientData);
   }

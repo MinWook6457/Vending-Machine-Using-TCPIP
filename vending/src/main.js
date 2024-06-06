@@ -63,10 +63,10 @@ app.whenReady().then(() => {
   });
 
   ipcMain.handle('getBuy', async (event, payload) => {
-    const { beverage, stock } = payload;
-    console.log(beverage, stock);
+    const { beverage, stock , price, inputCoin} = payload;
+    console.log(beverage, stock, price, inputCoin);
     try {
-      const response = await buyDrink(beverage, stock);
+      const response = await buyDrink(beverage, stock, price, inputCoin);
       return response;
     } catch (error) {
       console.error('Error in getBuy handler:', error);

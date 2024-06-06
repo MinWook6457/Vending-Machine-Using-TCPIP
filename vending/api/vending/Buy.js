@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import MyWorker from 'worker-loader!../../worker/worker.js'; // Adjust the path as necessary
+import Drink from '../home/Drink';
 
-function Buy({ beverage, nowStock }) {
+function Buy({ beverage, nowStock,price, inputCoin,updateInputCoin}) {
   const [buyStock, setBuyStock] = useState([]);
 
   useEffect(() => {
@@ -13,9 +14,15 @@ function Buy({ beverage, nowStock }) {
     }
   }, []);
   const buyDrink = async () => {
+    if(inputCoin < price){
+      alert('Not enough coins!');
+      return;
+    }
+
+
     try {
-      console.log(beverage,nowStock)
-      const test = {beverage, stock: nowStock}
+      console.log(beverage,nowStock,price,inputCoin)
+      const test = {beverage, stock: nowStock, price, inputCoin}
       const response = await window.buy.getBuy(test);
       console.log(response);
       setBuyStock(response.remainingStock);

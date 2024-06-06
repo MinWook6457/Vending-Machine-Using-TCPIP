@@ -34,21 +34,23 @@ const server1 = net.createServer((socket) => {
     if (data.startsWith('buy')) {
       const payload = data.substring(3);
       try {
-        const { beverage, stock } = JSON.parse(payload);
-        console.log(`구매 요청 - 음료수: ${beverage}, 재고: ${stock}`);
+        const { beverage, stock, price } = JSON.parse(payload);
+        let { inputCoin } = JSON.parse(payload); // Declare inputCoin with let for reassignment
+        console.log(`구매 요청 - 음료수: ${beverage}, 재고: ${stock}, 가격 :${price} , 투입된 화폐 : ${inputCoin}`);
 
         Vending.findOne({
-          where: { beverage },
-          attributes: ['beverage', 'stock']
+          where: { beverage : beverage},
+          attributes: ['beverage','price', 'stock']
         }).then((item) => {
-          if (item) {
-            if (item.stock >= 0) {
+            console.log(item) 
+            inputCoin -= price; // Modify inputCoin here
+            if (item.stock > 0) {
               item.stock -= 1;
               Vending.update(
                 { stock: item.stock },
-                { where: { beverage } }
+                { where: { beverage : beverage } }
               ).then(() => {
-                socket.write(JSON.stringify({ success: true, message: '구매 완료', beverage, remainingStock: item.stock }));
+                socket.write(JSON.stringify({ success: true, message: '구매 완료', beverage, remainingStock: item.stock , price, inputCoin}));
               }).catch((updateError) => {
                 console.error('재고 업데이트 실패:', updateError);
                 socket.write(JSON.stringify({ success: false, message: '재고 업데이트 실패' }));
@@ -56,9 +58,6 @@ const server1 = net.createServer((socket) => {
             } else {
               socket.write(JSON.stringify({ success: false, message: '재고 부족' }));
             }
-          } else {
-            socket.write(JSON.stringify({ success: false, message: '음료를 찾을 수 없음' }));
-          }
         }).catch((findError) => {
           console.error('음료 검색 실패:', findError);
           socket.write(JSON.stringify({ success: false, message: '음료 검색 실패' }));

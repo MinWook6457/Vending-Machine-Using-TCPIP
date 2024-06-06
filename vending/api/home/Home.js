@@ -26,6 +26,10 @@ const Home = () => {
     setInputCoin(prevInputCoin => prevInputCoin + value);
   };
 
+  const updateInputCoin = (amount) => {
+    setInputCoin(prevInputCoin => prevInputCoin - amount);
+  };
+
   return (
     <div>
       <div className="drink-list">
@@ -33,7 +37,7 @@ const Home = () => {
           {drinks &&
             drinks.map((drink, index) => (
               <div key={index} className="col-md-4 mb-4">
-                <Drink beverage={drink.beverage} price={drink.price} stock={drink.stock} />
+                <Drink beverage={drink.beverage} price={drink.price} stock={drink.stock} inputCoin={inputCoin} updateInputCoin={updateInputCoin}/>
               </div>
             ))}
         </div>
