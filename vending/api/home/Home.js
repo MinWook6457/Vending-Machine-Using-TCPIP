@@ -16,7 +16,7 @@ const Home = () => {
   useEffect(() => {
     const fetchDrinks = async () => {
       try {
-        const response = await window.info.getInfo();
+        const response = await window.ipcRenderer.invoke('getInfo',{});
 
         console.log(response)
 
@@ -126,7 +126,8 @@ const Home = () => {
       }, {});
       setDrinkStocks(updatedStocks);
       alert('재고가 성공적으로 보충되었습니다.');
-      window.location.reload(); // 페이지 리로드
+      window.location.reload();
+      
     } else {
       alert('재고 보충에 실패했습니다.');
     }

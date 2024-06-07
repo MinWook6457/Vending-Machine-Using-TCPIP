@@ -24,13 +24,13 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
   }
 });
 
-contextBridge.exposeInMainWorld('info', {
-  getInfo: async () => {
-    const dtoResult = await mainDTO('info', {});
-    console.log('Info DTO:', dtoResult);
-    return ipcRenderer.invoke('getInfo', dtoResult);
-  }
-});
+// contextBridge.exposeInMainWorld('info', {
+//   getInfo: async () => {
+//     const dtoResult = await mainDTO('info', {});
+//     console.log('Info DTO:', dtoResult);
+//     return ipcRenderer.invoke('getInfo', dtoResult);
+//   }
+// });
 
 contextBridge.exposeInMainWorld('stock', {
   getStock: async () => {

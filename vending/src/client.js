@@ -6,8 +6,6 @@ const SERVER_PORT1 = 3001;
 let vendingInfo = null;
 let coinInfo = null;
 
-let oneThousandCount = 0;
-
 console.log('클라이언트 실행');
 
 const socket = net.createConnection({
@@ -56,8 +54,22 @@ socket.on('connect', () => {
     socket.write('data');
 });
 
-function getVendingInfo() {
-    return vendingInfo;
+function getInfo() {
+    return new Promise((resolve, reject) => {
+        socket.write(`getInfo`);
+        socket.once('data', (data) => {
+            try {
+                const response = JSON.parse(data);
+                resolve(response);
+            } catch (error) {
+                reject(new Error('Failed to parse server response'));
+            }
+        });
+
+        socket.once('error', (err) => {
+            reject(new Error('socket1 error: ' + err.message));
+        });
+    });
 }
 
 function buyDrink(beverage, stock, price, inputCoin) {
@@ -176,5 +188,5 @@ function refresh(){
 }
 
 module.exports = {
-    socket, getVendingInfo, buyDrink, getCoinInfo, inputCoin, getChange, checkPassword, refresh
+    socket, getInfo, buyDrink, getCoinInfo, inputCoin, getChange, checkPassword, refresh
 };

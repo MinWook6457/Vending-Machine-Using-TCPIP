@@ -24,6 +24,11 @@ module.exports = (sequelize, DataTypes) => {
                 allowNull : false,
                 comment : '음료 재고'
             },
+            money : {
+                type : DataTypes.INTEGER,
+                allowNull : false,
+                comment : '자판기 총액'
+            },
             createdAt: {
                 type: DataTypes.DATE,
                 defaultValue: DataTypes.NOW,

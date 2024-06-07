@@ -1,14 +1,14 @@
 'use strict';
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.addColumn('Vendings', 'stock', {
+    await queryInterface.addColumn('Vendings', 'money', {
       type: Sequelize.INTEGER,
       allowNull: false,
-      defaultValue: 10, // 재고의 기본값 설정
-      comment: '음료 재고',
+      defaultValue: 0, // 재고의 기본값 설정
+      comment: '자판기 총액',
     });
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.removeColumn('Vendings', 'stock');
+    await queryInterface.removeColumn('Vendings', 'money');
   }
 };

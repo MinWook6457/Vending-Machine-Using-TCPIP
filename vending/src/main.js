@@ -1,6 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
-const { socket1, getVendingInfo, buyDrink , getCoinInfo, inputCoin, getChange, checkPassword, refresh} = require('./client');
+const { socket1, getInfo, buyDrink , getCoinInfo, inputCoin, getChange, checkPassword, refresh} = require('./client');
 const { env } = require('process');
 
 if (require('electron-squirrel-startup')) {
@@ -42,7 +42,7 @@ app.whenReady().then(() => {
   // });
 
   ipcMain.handle('getInfo', async () => {
-    const vendingInfo = getVendingInfo();
+    const vendingInfo = await getInfo();
     // broadcast('getInfo', vendingInfo);
     return vendingInfo;
   });

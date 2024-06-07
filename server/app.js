@@ -25,11 +25,28 @@ const server1 = net.createServer((socket) => {
 
   clients.push(socket);
 
-  sendVendingData(socket);
-  sendCoinData(socket);
+  // sendVendingData(socket);
 
   socket.on('data', async (data) => {
     console.log('클라이언트로부터 받은 데이터:', data.toString());
+
+    if(data.startsWith('getInfo')){
+      try{
+        sendVendingData(socket)
+      }catch(err){
+        console.log('테스트 에러')
+      }
+    }
+
+    if(data.startsWith('getCoin')){
+      try{
+         sendCoinData(socket);
+      }catch(err){
+        console.log('테스트 에러')
+      }
+    }
+
+    
 
     if (data.startsWith('buy')) {
       const payload = data.substring(3);
@@ -39,13 +56,15 @@ const server1 = net.createServer((socket) => {
 
         const item = await Vending.findOne({
           where: { beverage },
-          attributes: ['beverage', 'price', 'stock']
+          attributes: ['beverage', 'price', 'stock', 'money']
         });
+
+        console.log(item.money)
 
         if (item) {
           if (item.stock > 0) {
             const newStock = item.stock - 1;
-            await Vending.update({ stock: newStock }, { where: { beverage } });
+            await Vending.update({ stock: newStock , money : (item.money += price) }, { where: { beverage } });
             const remainingCoin = inputCoin - price;
             socket.write(JSON.stringify({ success: true, message: '구매 완료', beverage, remainingStock: newStock, price, remainingCoin }));
           } else {
@@ -157,7 +176,7 @@ function sendVendingData(socket) {
   })
     .then((data) => {
       const vendingData = JSON.stringify(data);
-      socket.write(vendingData + '|');
+      socket.write(vendingData);
     })
     .catch((error) => {
       console.log('데이터베이스 쿼리 에러:', error);
