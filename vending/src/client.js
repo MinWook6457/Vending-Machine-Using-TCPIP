@@ -155,6 +155,26 @@ function checkPassword(password){
     })
 }
 
+function refresh(){
+    return new Promise((resolve, reject) => {
+        console.log('Refresh Data To Server');
+        socket.write(`refresh`);
+
+        socket.once('data', (data) => {
+            try {
+                const response = JSON.parse(data.toString());
+                resolve(response);
+            } catch (error) {
+                reject(new Error('Failed to parse server response'));
+            }
+        });
+
+        socket.once('error', (err) => {
+            reject(new Error('socket error: ' + err.message));
+        });
+    });
+}
+
 module.exports = {
-    socket, getVendingInfo, buyDrink, getCoinInfo, inputCoin, getChange, checkPassword
+    socket, getVendingInfo, buyDrink, getCoinInfo, inputCoin, getChange, checkPassword, refresh
 };

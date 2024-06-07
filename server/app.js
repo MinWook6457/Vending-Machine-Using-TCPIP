@@ -116,6 +116,22 @@ const server1 = net.createServer((socket) => {
       }
     }
 
+    if(data.startsWith('refresh')){
+      try{
+        const vendingData = await Vending.findAll({
+          attributes: ['beverage', 'price', 'stock']
+        })
+        const refreshData = JSON.stringify(vendingData); 
+        const test = JSON.parse(refreshData)
+        await refreshVending(test);
+
+        const data = await refreshVendingInfo(test);
+
+        socket.write(JSON.stringify({ success: true, message: '재고 보충 완료', data }));
+      }catch(err){
+        socket.write(JSON.stringify({ success: false, message: '재고 보충 실패' }));
+      }
+    }
   });
 
   socket.on('close', () => {
@@ -195,4 +211,23 @@ async function updateCoinChange(change) {
       console.error(`${unit} 코인 업데이트 실패:`, error);
     }
   }
+}
+
+async function refreshVending(refreshData) {
+  for (const [number,data] of Object.entries(refreshData)) {
+    try {
+        await Vending.update({ stock: 10 }, { where: { beverage: data.beverage } });
+        // console.log(`${beverage} 재고 보충 성공`);
+    } catch (error) {
+      console.error(`${beverage} 재고 보충 실패:`, error);
+    }
+  }
+}
+
+async function refreshVendingInfo(refreshData){
+  for (const [number,data] of Object.entries(refreshData)){
+    data.stock = 10;
+  }
+
+  return refreshData;
 }

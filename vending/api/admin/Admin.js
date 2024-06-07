@@ -15,8 +15,6 @@ ChartJS.register(
 
 const Admin = () => {
 
-
-
   const data = {
     labels: ["water", "coffee", "sports", "shake","cola","ade"],
     datasets: [
@@ -40,9 +38,6 @@ const Admin = () => {
   return (
 
     <div>
-      <div>
-      <button onClick={() => makeUpDrinks()}>¿‹∞Ì ∫∏√Ê</button>    
-      </div>
       <div className='chart d-flex justify-content-center'>
         <h1>Drinks </h1>
       </div>

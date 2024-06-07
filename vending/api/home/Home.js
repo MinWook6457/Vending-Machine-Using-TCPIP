@@ -11,11 +11,15 @@ const Home = () => {
 
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
+  const [isCheck,setIsCheck] = useState(false);
 
   useEffect(() => {
     const fetchDrinks = async () => {
       try {
         const response = await window.info.getInfo();
+
+        console.log(response)
+
         setDrinks(response);
 
         // 음료수의 초기 재고 상태 설정
@@ -96,13 +100,37 @@ const Home = () => {
       const response = await window.ipcRenderer.invoke('checkPassword', {password});
       if(response.success){
         alert('관리자 모드 진입 성공')
-        window.location.hash = "#/admin";
+        setIsCheck(true);
+        setMessage('관리자 모드 활성화')
+
+        // window.location.hash = "#/admin";
       }else{
         alert('관리자 모드 진입 실패')
       }
     }catch(error){
-
+      console.log('관리자 모드 진입 실패')
     }
+  }
+
+  const refreshDrinks= async () => {
+    const response = await window.ipcRenderer.invoke('refresh',{});
+
+    console.log(response);
+
+    if (response.success) {
+      const updatedDrinks = response.data;
+      setDrinks(updatedDrinks);
+      const updatedStocks = updatedDrinks.reduce((acc, drink) => {
+        acc[drink.beverage] = drink.stock;
+        return acc;
+      }, {});
+      setDrinkStocks(updatedStocks);
+      alert('재고가 성공적으로 보충되었습니다.');
+      window.location.reload(); // 페이지 리로드
+    } else {
+      alert('재고 보충에 실패했습니다.');
+    }
+
   }
 
 
@@ -160,8 +188,13 @@ const Home = () => {
            value={password}
            onChange={inputPassword}>
             </input></h3>
-           <button onClick={inputPasswordSubmit}>진입</button>
-          <p>{message}</p>
+            <button onClick={inputPasswordSubmit}>진입</button> 
+            { isCheck && 
+            <div>
+              <p> {message} </p>
+              <button onClick={refreshDrinks}>재고 보충</button>
+            </div>
+            }
           </div>
     </div>
   );
