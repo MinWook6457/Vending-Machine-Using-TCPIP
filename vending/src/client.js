@@ -187,6 +187,26 @@ function refresh(){
     });
 }
 
+function makeUp(){
+    return new Promise((resolve, reject) => {
+        console.log('Make Up Message To Server');
+        socket.write(`makeUp`);
+
+        socket.once('data', (data) => {
+            try {
+                const response = JSON.parse(data.toString());
+                resolve(response);
+            } catch (error) {
+                reject(new Error('Failed to parse server response'));
+            }
+        });
+
+        socket.once('error', (err) => {
+            reject(new Error('socket error: ' + err.message));
+        });
+    });
+}
+
 module.exports = {
-    socket, getInfo, buyDrink, getCoinInfo, inputCoin, getChange, checkPassword, refresh
+    socket, getInfo, buyDrink, getCoinInfo, inputCoin, getChange, checkPassword, refresh, makeUp
 };

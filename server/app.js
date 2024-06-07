@@ -151,6 +151,20 @@ const server1 = net.createServer((socket) => {
         socket.write(JSON.stringify({ success: false, message: '재고 보충 실패' }));
       }
     }
+
+    if(data.startsWith('makeUp')){
+      try{
+        const vendingData = await Vending.findAll({
+          attributes: ['beverage', 'price', 'stock','money']
+        })
+          
+        const refreshData = JSON.stringify(vendingData);
+        socket.write(JSON.stringify({ success: true, message: '전체 자판기 데이터 전달', refreshData }));
+
+      }catch(err){
+        socket.write(JSON.stringify({ success: false, message: '자판기 통계 에러' }));
+      }
+    }
   });
 
   socket.on('close', () => {

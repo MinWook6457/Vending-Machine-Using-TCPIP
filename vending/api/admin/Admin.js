@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Doughnut } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -14,34 +14,50 @@ ChartJS.register(
 );
 
 const Admin = () => {
+  const [makeUpData, setMakeUpData] = useState(null);
 
-  const data = {
-    labels: ["water", "coffee", "sports", "shake","cola","ade"],
-    datasets: [
-      {
-        data: [10, 8, 9, 8,10,9],
-        backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "#4CAF50","#FF6384","#FF6384"],
-        borderWidth: 1,
-        hoverBackgroundColor: [
-          "#FF6384",
-          "#36A2EB",
-          "#FFCE56",
-          "#4CAF50",
-          "#FF6384",
-          "#FF6384"
+  const makeUpDrinks = async () => {
+    try {
+      const response = await window.ipcRenderer.invoke('makeUp', {});
+      const data = JSON.parse(response.refreshData);
+
+      const labels = data.map(drink => drink.beverage);
+      const drinkData = data.map(drink => drink.money);
+      const backgroundColor = ["#00FFFF", "#A0522D", "#0000FF", "#FFC0CB", "#DC143C", "#FFD700"];
+      const hoverBackgroundColor = ["#00FFFF", "#A0522D", "#0000FF", "#FFC0CB", "#DC143C", "#FFD700"];
+
+      const chartData = {
+        labels,
+        datasets: [
+          {
+            data: drinkData,
+            backgroundColor,
+            borderWidth: 1,
+            hoverBackgroundColor
+          }
         ],
-      },
-    ],
-     hoverOffset: 4
+        hoverOffset: 6
+      };
+
+      setMakeUpData(chartData);
+    } catch (error) {
+      console.error('Failed to fetch drink data:', error);
+    }
   };
 
-  return (
+  useEffect(() => {
+    makeUpDrinks();
+  }, []);
 
+  return (
     <div>
       <div className='chart d-flex justify-content-center'>
-        <h1>Drinks </h1>
+        <h1>Drinks</h1>
       </div>
-      <Doughnut data={data} width={400} height={400}/>
+      <div className='d-flex justify-content-center'>
+        <button onClick={makeUpDrinks}>Update Data</button>
+      </div>
+      {makeUpData && <Doughnut data={makeUpData} width={400} height={400} />}
     </div>
   );
 };

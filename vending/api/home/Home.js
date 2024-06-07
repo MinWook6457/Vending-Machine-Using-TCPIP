@@ -102,6 +102,7 @@ const Home = () => {
         alert('관리자 모드 진입 성공');
         setIsCheck(true);
         setMessage('관리자 모드 활성화');
+        
       } else {
         alert('관리자 모드 진입 실패');
       }
@@ -109,6 +110,10 @@ const Home = () => {
       console.log('관리자 모드 진입 실패');
     }
   };
+
+  const inputMakeUpVending = async() => {
+    window.location.hash = "#/admin";
+  }
 
   const refreshDrinks = async () => {
     const response = await window.ipcRenderer.invoke('refresh', {});
@@ -188,6 +193,7 @@ const Home = () => {
         {isCheck &&
           <div>
             <p>{message}</p>
+            <button onClick={inputMakeUpVending}>통계</button>
             <button onClick={refreshDrinks}>재고 보충</button>
           </div>
         }

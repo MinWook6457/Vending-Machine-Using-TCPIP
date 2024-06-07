@@ -1,6 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
-const { socket1, getInfo, buyDrink , getCoinInfo, inputCoin, getChange, checkPassword, refresh} = require('./client');
+const { socket1, getInfo, buyDrink , getCoinInfo, inputCoin, getChange, checkPassword, refresh, makeUp} = require('./client');
 
 if (require('electron-squirrel-startup')) {
   app.quit();
@@ -131,11 +131,22 @@ app.whenReady().then(() => {
     }
   })
 
+  ipcMain.handle('makeUp', async(event,payload) => {
+    try{
+      const response = await makeUp();
+      return response; 
+    }catch(error){
+      return { success : false, message : error.message}
+    }
+  })
+
   ipcMain.on('reloadAllWindows', () => {
     BrowserWindow.getAllWindows().forEach(window => {
       window.reload();
     });
   });
+
+
   
 });
 

@@ -27,12 +27,6 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
   }
 });
 
-ipcRenderer.on('reloadAllWindows', () => {
-  BrowserWindow.getAllWindows().forEach(window => {
-      window.reload();
-  });
-});
-
 // contextBridge.exposeInMainWorld('info', {
 //   getInfo: async () => {
 //     const dtoResult = await mainDTO('info', {});
