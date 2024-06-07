@@ -1,11 +1,12 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const { socket1, getInfo, buyDrink , getCoinInfo, inputCoin, getChange, checkPassword, refresh} = require('./client');
-const { env } = require('process');
 
 if (require('electron-squirrel-startup')) {
   app.quit();
 }
+
+let windows = [];
 
 const createWindow = () => {
   const mainWindow = new BrowserWindow({
@@ -21,10 +22,14 @@ const createWindow = () => {
 
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
   mainWindow.webContents.openDevTools();
+
+  windows.push(mainWindow);
 };
 
 app.whenReady().then(() => {
   createWindow();
+  createWindow();
+
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow();
@@ -40,6 +45,12 @@ app.whenReady().then(() => {
   //  // broadcast('refresh', refreshJsonData);
   //   return refreshData;
   // });
+
+  ipcMain.on('reloadAllWindows', () => {
+    BrowserWindow.getAllWindows().forEach(window => {
+      window.reload();
+    });
+  });
 
   ipcMain.handle('getInfo', async () => {
     const vendingInfo = await getInfo();
@@ -119,6 +130,13 @@ app.whenReady().then(() => {
       return { success : false, message : error.message}
     }
   })
+
+  ipcMain.on('reloadAllWindows', () => {
+    BrowserWindow.getAllWindows().forEach(window => {
+      window.reload();
+    });
+  });
+  
 });
 
 app.on('window-all-closed', () => {

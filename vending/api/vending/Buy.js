@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 
 function Buy({ beverage, nowStock, price, inputCoin, updateInputCoin, updateDrinkStock }) {
@@ -10,8 +9,8 @@ function Buy({ beverage, nowStock, price, inputCoin, updateInputCoin, updateDrin
       return;
     }
 
-    if(buyStock === 0){
-      alert('not Enough stocks!');
+    if (buyStock === 0) {
+      alert('Not enough stocks!');
       return;
     }
 
@@ -19,8 +18,9 @@ function Buy({ beverage, nowStock, price, inputCoin, updateInputCoin, updateDrin
       const test = { beverage, stock: buyStock, price, inputCoin }; // buyStock 사용
       const response = await window.buy.getBuy(test);
       setBuyStock(response.remainingStock);
-      updateInputCoin(price);
       updateDrinkStock(beverage, response.remainingStock);
+      updateInputCoin(price);
+      window.ipcRenderer.send('reloadAllWindows'); // 페이지 새로 고침 트리거
     } catch (error) {
       console.error('Failed to fetch drink data:', error);
     }

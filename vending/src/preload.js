@@ -21,7 +21,16 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
   },
   removeAllListeners: (channel) => {
     ipcRenderer.removeAllListeners(channel);
+  },
+  send : (channel, ...args) => {
+    ipcRenderer.send(channel, ...args);  
   }
+});
+
+ipcRenderer.on('reloadAllWindows', () => {
+  BrowserWindow.getAllWindows().forEach(window => {
+      window.reload();
+  });
 });
 
 // contextBridge.exposeInMainWorld('info', {

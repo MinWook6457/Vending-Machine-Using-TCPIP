@@ -1,30 +1,24 @@
 ﻿import React, { useState, useEffect } from 'react';
 import Drink from './Drink';
 import MoneyImage from './MoneyImage';
-import changeImg from '../../img/change.png'
+import changeImg from '../../img/change.png';
 
 const Home = () => {
   const [drinks, setDrinks] = useState([]);
   const [inputCoin, setInputCoin] = useState(0);
-  const [drinkStocks, setDrinkStocks] = useState({}); // 각 음료수의 재고를 관리하기 위한 상태
+  const [drinkStocks, setDrinkStocks] = useState({});
   const [oneThousandCount, setOneThousandCount] = useState(0);
 
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
-  const [isCheck,setIsCheck] = useState(false);
+  const [isCheck, setIsCheck] = useState(false);
 
   useEffect(() => {
     const fetchDrinks = async () => {
       try {
-        const response = await window.ipcRenderer.invoke('getInfo',{});
-
-        console.log(response)
-
+        const response = await window.ipcRenderer.invoke('getInfo', {});
         setDrinks(response);
-
-        // 음료수의 초기 재고 상태 설정
         const initialStocks = response.reduce((acc, drink) => {
-          
           acc[drink.beverage] = drink.stock;
           return acc;
         }, {});
@@ -33,29 +27,45 @@ const Home = () => {
         console.error('Failed to fetch drink data:', error);
       }
     };
+    
+    const savedLocalInputCoin = localStorage.getItem('inputCoin');
+    setInputCoin(Number(savedLocalInputCoin) || 0);
+
+    const savedThousandCount = localStorage.getItem('oneThousandCount');
+    setOneThousandCount(Number(savedThousandCount) || 0);
 
     fetchDrinks();
   }, []);
 
   const coinClick = (value, name) => {
-    window.ipcRenderer.invoke('getCoin', { value, name });
-    if(value === 1000){
-      setOneThousandCount(preCount => preCount + 1 );
-      if(oneThousandCount > 4){
+    if (value === 1000) {
+      if (oneThousandCount >= 4) {
         alert('1000원 권은 최대 5장만 투입 가능합니다!');
         return;
+      } else {
+        setOneThousandCount(prevCount => {
+          const newCount = prevCount + 1;
+          localStorage.setItem('oneThousandCount', newCount);
+          return newCount;
+        });
       }
-    }else{
-      if(inputCoin + value > 7000){
+    } else {
+      if (inputCoin + value > 7000) {
         alert('투입금은 최대 7000원!');
         return;
       }
     }
-    setInputCoin(prevInputCoin => prevInputCoin + value );
+
+    const updatedCoin = inputCoin + value;
+    setInputCoin(updatedCoin);
+    localStorage.setItem('inputCoin', updatedCoin);
+    window.ipcRenderer.send('reloadAllWindows'); // 페이지 새로 고침 트리거
   };
 
   const updateInputCoin = (amount) => {
-    setInputCoin(prevInputCoin => prevInputCoin - amount);
+    const updatedCoin = inputCoin - amount;
+    localStorage.setItem('inputCoin', updatedCoin);
+    setInputCoin(updatedCoin);
   };
 
   const updateDrinkStock = (beverage, newStock) => {
@@ -65,57 +75,43 @@ const Home = () => {
     }));
   };
 
-  const changeCoinClick = async (inputCoin) => { 
+  const changeCoinClick = async () => {
     const response = await window.ipcRenderer.invoke('getChange', { inputCoin });
-    console.log(response);
     const parseResponse = JSON.parse(JSON.stringify(response));
 
-    const totalChange = Object.entries(parseResponse.change)
-    .reduce((total, [coin, count]) => {
+    const totalChange = Object.entries(parseResponse.change).reduce((total, [coin, count]) => {
       const coinValue = parseInt(coin);
       const coinCount = parseInt(count);
-      console.log(`Coin: ${coin}, Count: ${count}, Coin Value: ${coinValue}, Coin Count: ${coinCount}`);
-      
-      if (!isNaN(coinValue) && !isNaN(coinCount)) {
-        return total + (coinValue * coinCount);
-      } else {
-        console.error(`Invalid coin or count value: Coin - ${coin}, Count - ${count}`);
-        return total;
-      }
+      return total + (coinValue * coinCount);
     }, 0);
 
-    console.log(totalChange);
-    setInputCoin(prevInputCoin => prevInputCoin - totalChange);
-  }
-
+    const updatedCoin = inputCoin - totalChange;
+    localStorage.setItem('inputCoin', updatedCoin);
+    setInputCoin(updatedCoin);
+    window.ipcRenderer.send('reloadAllWindows', {});
+  };
 
   const inputPassword = (e) => {
     setPassword(e.target.value);
   };
 
   const inputPasswordSubmit = async () => {
-    try{
-      console.log(password)
-
-      const response = await window.ipcRenderer.invoke('checkPassword', {password});
-      if(response.success){
-        alert('관리자 모드 진입 성공')
+    try {
+      const response = await window.ipcRenderer.invoke('checkPassword', { password });
+      if (response.success) {
+        alert('관리자 모드 진입 성공');
         setIsCheck(true);
-        setMessage('관리자 모드 활성화')
-
-        // window.location.hash = "#/admin";
-      }else{
-        alert('관리자 모드 진입 실패')
+        setMessage('관리자 모드 활성화');
+      } else {
+        alert('관리자 모드 진입 실패');
       }
-    }catch(error){
-      console.log('관리자 모드 진입 실패')
+    } catch (error) {
+      console.log('관리자 모드 진입 실패');
     }
-  }
+  };
 
-  const refreshDrinks= async () => {
-    const response = await window.ipcRenderer.invoke('refresh',{});
-
-    console.log(response);
+  const refreshDrinks = async () => {
+    const response = await window.ipcRenderer.invoke('refresh', {});
 
     if (response.success) {
       const updatedDrinks = response.data;
@@ -126,14 +122,11 @@ const Home = () => {
       }, {});
       setDrinkStocks(updatedStocks);
       alert('재고가 성공적으로 보충되었습니다.');
-      window.location.reload();
-      
+      window.ipcRenderer.send('reloadAllWindows', {});
     } else {
       alert('재고 보충에 실패했습니다.');
     }
-
-  }
-
+  };
 
   return (
     <div>
@@ -166,7 +159,7 @@ const Home = () => {
               <button onClick={() => coinClick(value, name)}>
                 <MoneyImage name={name} />
               </button>
-              <div>${value}</div>
+              <div>{value}원</div>
             </div>
           ))}
         </div>
@@ -176,27 +169,29 @@ const Home = () => {
           <div className='row'>
            <h3> 투입된 금액: {inputCoin}  </h3>
         <button onClick={() => changeCoinClick(inputCoin)}> 
-            <img src={changeImg} width={100}></img>
+            <img src={changeImg} width={100} alt="Change" />
         </button>        
           </div>
          </div>
       </div>
-          <div className='admin d-flex justify-content-center'>
-           <h3> 관리자 모드 :{' '} 
-           <input type="password" 
-           name="userPassword" 
-           placeholder="password"  
-           value={password}
-           onChange={inputPassword}>
-            </input></h3>
-            <button onClick={inputPasswordSubmit}>진입</button> 
-            { isCheck && 
-            <div>
-              <p> {message} </p>
-              <button onClick={refreshDrinks}>재고 보충</button>
-            </div>
-            }
+      <div className='admin d-flex justify-content-center'>
+        <h3> 관리자 모드 :{' '}
+          <input
+            type="password"
+            name="userPassword"
+            placeholder="password"
+            value={password}
+            onChange={inputPassword}
+          />
+        </h3>
+        <button onClick={inputPasswordSubmit}>진입</button>
+        {isCheck &&
+          <div>
+            <p>{message}</p>
+            <button onClick={refreshDrinks}>재고 보충</button>
           </div>
+        }
+      </div>
     </div>
   );
 };
