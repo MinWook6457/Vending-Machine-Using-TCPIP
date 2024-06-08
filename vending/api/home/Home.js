@@ -8,7 +8,6 @@ const Home = () => {
   const [inputCoin, setInputCoin] = useState(0);
   const [drinkStocks, setDrinkStocks] = useState({});
   const [oneThousandCount, setOneThousandCount] = useState(0);
-
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [isCheck, setIsCheck] = useState(false);
@@ -27,17 +26,41 @@ const Home = () => {
         console.error('Failed to fetch drink data:', error);
       }
     };
-    
+
     const savedLocalInputCoin = localStorage.getItem('inputCoin');
     setInputCoin(Number(savedLocalInputCoin) || 0);
 
     const savedThousandCount = localStorage.getItem('oneThousandCount');
     setOneThousandCount(Number(savedThousandCount) || 0);
 
+    const savedIsCheck = localStorage.getItem('isCheck');
+    setIsCheck(savedIsCheck === 'true');
+
     fetchDrinks();
+
+    const handleStorageChange = (event) => {
+      if (event.key === 'isCheck') {
+        setIsCheck(event.newValue === 'true');
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
 
+  useEffect(() => {
+    localStorage.setItem('isCheck', isCheck);
+  }, [isCheck]);
+
   const coinClick = (value, name) => {
+    if (isCheck) {
+      alert('관리자 모드 활성화 중입니다. 코인을 투입할 수 없습니다.');
+      return;
+    }
+
     if (value === 1000) {
       if (oneThousandCount >= 4) {
         alert('1000원 권은 최대 5장만 투입 가능합니다!');
@@ -76,6 +99,11 @@ const Home = () => {
   };
 
   const changeCoinClick = async () => {
+    if (isCheck) {
+      alert('관리자 모드 활성화 중입니다. 거스름돈을 받을 수 없습니다.');
+      return;
+    }
+
     const response = await window.ipcRenderer.invoke('getChange', { inputCoin });
     const parseResponse = JSON.parse(JSON.stringify(response));
 
@@ -101,8 +129,8 @@ const Home = () => {
       if (response.success) {
         alert('관리자 모드 진입 성공');
         setIsCheck(true);
+        localStorage.setItem('isCheck', 'true');
         setMessage('관리자 모드 활성화');
-        
       } else {
         alert('관리자 모드 진입 실패');
       }
@@ -111,9 +139,9 @@ const Home = () => {
     }
   };
 
-  const inputMakeUpVending = async() => {
+  const inputMakeUpVending = async () => {
     window.location.hash = "#/admin";
-  }
+  };
 
   const refreshDrinks = async () => {
     const response = await window.ipcRenderer.invoke('refresh', {});
@@ -133,6 +161,12 @@ const Home = () => {
     }
   };
 
+  const offAdmin = () => {
+    setIsCheck(false);
+    localStorage.setItem('isCheck', 'false');
+    alert('관리자 모드 종료');
+  };
+
   return (
     <div>
       <div className="drink-list">
@@ -146,6 +180,7 @@ const Home = () => {
                 inputCoin={inputCoin}
                 updateDrinkStock={updateDrinkStock}
                 updateInputCoin={updateInputCoin}
+                isCheck={isCheck} // Pass isCheck to disable purchase
               />
             </div>
           ))}
@@ -172,12 +207,12 @@ const Home = () => {
       <div>
         <div className='money d-flex justify-content-center'>
           <div className='row'>
-           <h3> 투입된 금액: {inputCoin}  </h3>
-        <button onClick={() => changeCoinClick(inputCoin)}> 
-            <img src={changeImg} width={100} alt="Change" />
-        </button>        
+            <h3> 투입된 금액: {inputCoin} </h3>
+            <button onClick={() => changeCoinClick(inputCoin)}>
+              <img src={changeImg} width={100} alt="Change" />
+            </button>
           </div>
-         </div>
+        </div>
       </div>
       <div className='admin d-flex justify-content-center'>
         <h3> 관리자 모드 :{' '}
@@ -193,8 +228,15 @@ const Home = () => {
         {isCheck &&
           <div>
             <p>{message}</p>
-            <button onClick={inputMakeUpVending}>통계</button>
-            <button onClick={refreshDrinks}>재고 보충</button>
+            <div>
+              <button onClick={inputMakeUpVending}>통계</button>
+            </div>
+            <div>
+              <button onClick={refreshDrinks}>재고 보충</button>
+            </div>
+            <div>
+              <button onClick={offAdmin}>종료</button>
+            </div>
           </div>
         }
       </div>

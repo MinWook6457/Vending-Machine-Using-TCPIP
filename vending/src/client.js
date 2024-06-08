@@ -24,7 +24,7 @@ socket.on('data', (data) => {
     try {
       if (vendingDataString) {
         vendingInfo = JSON.parse(vendingDataString);
-        console.log('Vending Info:', vendingInfo);
+        console.log('Info:', vendingInfo);
        } else {
         console.warn('Vending data is undefined');
        }
@@ -187,10 +187,10 @@ function refresh(){
     });
 }
 
-function makeUp(){
+function makeUpVending(){
     return new Promise((resolve, reject) => {
         console.log('Make Up Message To Server');
-        socket.write(`makeUp`);
+        socket.write(`makeUpVending`);
 
         socket.once('data', (data) => {
             try {
@@ -207,6 +207,64 @@ function makeUp(){
     });
 }
 
+function makeUpCoin(){
+    return new Promise((resolve, reject) => {
+        console.log('Make Up Coin Message To Server');
+        socket.write(`makeUpCoin`);
+        socket.once('data', (data) => {
+            try {
+                const response = JSON.parse(data.toString());
+                resolve(response);
+            } catch (error) {
+                reject(new Error('Failed to parse server response'));
+            }
+        });
+
+        socket.once('error', (err) => {
+            reject(new Error('socket error: ' + err.message));
+        });
+    });
+}
+
+function record(date){
+    return new Promise((resolve, reject) => {
+        console.log('Record Message To Server' + date);
+        const payload = date;
+        socket.write(`record${payload}`);
+        socket.once('data', (data) => {
+            try {
+                const response = JSON.parse(data.toString());
+                resolve(response);
+            } catch (error) {
+                reject(new Error('Failed to parse server response'));
+            }
+        });
+
+        socket.once('error', (err) => {
+            reject(new Error('socket error: ' + err.message));
+        });
+    });
+}
+
+function collect(){
+    return new Promise((resolve, reject) => {
+        console.log('Collect Message To Server');
+        socket.write(`collect`);
+        socket.once('data', (data) => {
+            try {
+                const response = JSON.parse(data.toString());
+                resolve(response);
+            } catch (error) {
+                reject(new Error('Failed to parse server response'));
+            }
+        });
+
+        socket.once('error', (err) => {
+            reject(new Error('socket error: ' + err.message));
+        });
+    });
+}
+
 module.exports = {
-    socket, getInfo, buyDrink, getCoinInfo, inputCoin, getChange, checkPassword, refresh, makeUp
+    socket, getInfo, buyDrink, getCoinInfo, inputCoin, getChange, checkPassword, refresh, makeUpVending, makeUpCoin, record, collect
 };

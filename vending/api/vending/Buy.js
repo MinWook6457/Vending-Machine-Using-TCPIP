@@ -1,9 +1,18 @@
 import React, { useState } from 'react';
 
-function Buy({ beverage, nowStock, price, inputCoin, updateInputCoin, updateDrinkStock }) {
+function Buy({ beverage, nowStock, price, inputCoin, updateInputCoin, updateDrinkStock ,isCheck}) {
   const [buyStock, setBuyStock] = useState(nowStock);
 
+  const test = localStorage.getItem('isCheck');
+
+  console.log(test)
+
   const buyDrink = async () => {
+    if(test==='true'){
+      alert('관리자 모드 활성화 중입니다. 음료를 구매할 수 없습니다.');
+      return;
+    }
+
     if (inputCoin < price) {
       alert('Not enough coins!');
       return;

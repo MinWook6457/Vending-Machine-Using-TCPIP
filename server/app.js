@@ -1,7 +1,7 @@
 require('dotenv').config();
 const net = require('net');
-const { Vending, Coin, sequelize } = require('./models/index');
-
+const { Vending, Coin, Record, Collect, sequelize } = require('./models/index');
+const { Op } = require('sequelize'); 
 const clients = [];
 
 sequelize.sync({ force: false })
@@ -54,6 +54,12 @@ const server1 = net.createServer((socket) => {
         const { beverage, price, inputCoin } = JSON.parse(payload);
         console.log(`구매 요청 - 음료수: ${beverage}, 가격 :${price}, 투입된 화폐 : ${inputCoin}`);
 
+        // 구매 후 RECORD
+        Record.create({
+          beverage : beverage ,
+          price : price
+        })
+
         const item = await Vending.findOne({
           where: { beverage },
           attributes: ['beverage', 'price', 'stock', 'money']
@@ -77,6 +83,8 @@ const server1 = net.createServer((socket) => {
         console.error('구매 데이터 처리 에러:', error);
         socket.write(JSON.stringify({ success: false, message: '구매 실패' }));
       }
+
+
     }
 
     if (data.startsWith('input')) {
@@ -152,7 +160,7 @@ const server1 = net.createServer((socket) => {
       }
     }
 
-    if(data.startsWith('makeUp')){
+    if(data.startsWith('makeUpVending')){
       try{
         const vendingData = await Vending.findAll({
           attributes: ['beverage', 'price', 'stock','money']
@@ -163,6 +171,94 @@ const server1 = net.createServer((socket) => {
 
       }catch(err){
         socket.write(JSON.stringify({ success: false, message: '자판기 통계 에러' }));
+      }
+    }
+
+    if(data.startsWith('makeUpCoin')){
+      try{
+        const coinData = await Coin.findAll({
+          attributes: ['unit', 'price', 'change']
+        })
+          
+        const refreshData = JSON.stringify(coinData);
+        socket.write(JSON.stringify({ success: true, message: '전체 화폐 데이터 전달', refreshData}));
+
+      }catch(err){
+        socket.write(JSON.stringify({ success: false, message: '화폐 데이터 전달 중 에러' }));
+      }
+    }
+
+    if(data.startsWith('record')){
+      const date = data.substring(6).trim(); // 날짜 문자열 추출 및 공백 제거
+
+      // const recordDate = new Date(date);
+
+      try{
+        const vendingData = await Vending.findAll({
+          attributes: ['beverage']
+        })
+
+        const parseData = JSON.parse(JSON.stringify(vendingData));
+
+        const records = {};
+
+        const startDate = new Date(`${date}T00:00:00`);
+        const endDate = new Date(`${date}T23:59:59`);
+
+        for(const item of parseData){
+          const beverage = item.beverage;
+          const recordCount = await Record.count({
+            where : {
+              beverage : beverage,
+              createdAt: {
+                [Op.between]: [startDate, endDate]
+              }
+            }
+          })
+          records[beverage] = recordCount;
+        }
+
+        console.log(records)
+        socket.write(JSON.stringify({ success: true, message: '기록 데이터 전달', records}));
+      }catch(err){
+        socket.write(JSON.stringify({ success: false, message: '기록 데이터 전달 중 에러' }));
+      }
+    }
+
+    if(data.startsWith('collect')){
+      try{
+        const coinData = await Coin.findAll({
+          attributes: ['price','change']
+        })
+
+        const parseData = JSON.parse(JSON.stringify(coinData));
+
+        let totalCollected = 0;
+
+        for(const item of parseData){
+          const change = item.change;
+          const price = item.price;
+
+          if (change > 2) {
+          const coinsToCollect = change - 2;
+          totalCollected += coinsToCollect * price;
+
+          await Coin.update(
+            { change: 2 },
+            { where: { price: price } }
+            );
+          }
+        }
+
+        Collect.create({
+          price : totalCollected
+        })
+
+        console.log({ success: true, message: '총 합계 전달', totalCollected });
+        socket.write(JSON.stringify({ success: true, message: '총 합계 전달', totalCollected }));
+      }catch(error){
+        console.error('Error collecting coins:', error);
+        socket.write(JSON.stringify({ success: false, message: '코인 수집 중 에러' }));
       }
     }
   });

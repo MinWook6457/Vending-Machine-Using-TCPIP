@@ -1,6 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
-const { socket1, getInfo, buyDrink , getCoinInfo, inputCoin, getChange, checkPassword, refresh, makeUp} = require('./client');
+const { socket1, getInfo, buyDrink , getCoinInfo, inputCoin, getChange, checkPassword, refresh, makeUpVending, makeUpCoin, record, collect} = require('./client');
 
 if (require('electron-squirrel-startup')) {
   app.quit();
@@ -131,13 +131,43 @@ app.whenReady().then(() => {
     }
   })
 
-  ipcMain.handle('makeUp', async(event,payload) => {
+  ipcMain.handle('makeUpVending', async(event,payload) => {
     try{
-      const response = await makeUp();
+      const response = await makeUpVending();
       return response; 
     }catch(error){
       return { success : false, message : error.message}
     }
+  })
+
+  ipcMain.handle('makeUpCoin',async(event,payload) => {
+    try{
+      const response = await makeUpCoin();
+      return response; 
+    }catch(error){
+      return { success : false, message : error.message}
+    }
+  })
+
+  ipcMain.handle('record',async(event,payload) => {
+    try{
+      const date = payload.date;
+      console.log(date);
+      const response = await record(date);
+      return response;
+    }catch(error){
+      return {success : false, message : error.message};
+    }
+  })
+
+  ipcMain.handle('collect',async(event,payload) => {
+    try{
+      const response = await collect();
+      return response; 
+    }catch(error){
+      return { success : false, message : error.message}
+    }
+
   })
 
   ipcMain.on('reloadAllWindows', () => {
