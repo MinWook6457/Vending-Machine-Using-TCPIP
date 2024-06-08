@@ -115,13 +115,21 @@ const server1 = net.createServer((socket) => {
       const payload = data.substring(6);
       try {
         const { inputCoin } = JSON.parse(payload);
+
         console.log(`잔돈 반환 요청 - 투입된 금액 : ${inputCoin}`);
 
-        const change = await calculateChange(inputCoin);
-        await updateCoinChange(change);
+        const calChange = await calculateChange(inputCoin);
+
+        if (Object.values(calChange).every(value => value === 0)) {
+          console.log('잔돈이 없습니다.');
+          socket.write(JSON.stringify({ success: false, message: '잔돈이 없습니다.' }));
+          return;
+        }
+
+        const change = await updateCoinChange(calChange,socket);
+
         socket.write(JSON.stringify({ success: true, message: '잔돈 반환 완료', change }));
       } catch (error) {
-        console.error('잔돈 데이터 처리 에러:', error);
         socket.write(JSON.stringify({ success: false, message: '잔돈 반환 실패' }));
       }
     }
@@ -309,6 +317,7 @@ function sendCoinData(socket) {
 async function calculateChange(inputCoin) {
   const tempCoins = [1000, 500, 100, 50, 10];
   let remainChange = inputCoin;
+
   const changes = {};
 
   for (const coinValue of tempCoins) {
@@ -321,26 +330,42 @@ async function calculateChange(inputCoin) {
     }
   }
 
+  console.log(changes)
+
   return changes;
 }
 
-async function updateCoinChange(change) {
+async function updateCoinChange(change, socket) {
   for (const [unit, count] of Object.entries(change)) {
     try {
       const coin = await Coin.findOne({ where: { price: parseInt(unit) }, attributes: ['price', 'change'] });
-      if (coin) {
-        const newChange = coin.change - count;
-        if(newChange === 0){
-          socket.write(JSON.stringify({ success: false, message: '잔돈 반환 실패, 잔돈이 부족합니다.' }));
-        }     
-        await Coin.update({ change: newChange }, { where: { price: parseInt(unit) } });
-        console.log(`${unit} 코인 업데이트 성공`);
+
+      if (!coin) {
+        console.log(`${unit} 코인이 존재하지 않습니다.`);
+        socket.write(JSON.stringify({ success: false, message: '코인을 찾을 수 없음' }));
+        return;
       }
+
+      console.log(`${coin.price}의 남은 화폐 : ${coin.change}`);
+
+      if (coin.change < count) {
+        console.log('화폐 부족');
+        socket.write(JSON.stringify({ success: false, message: '잔돈 반환 실패, 화폐가 부족합니다.' }));
+        return;
+      }
+
+      const newChange = coin.change - count;
+      await Coin.update({ change: newChange }, { where: { price: parseInt(unit) } });
+      console.log(`${unit} 코인 업데이트 성공`);
     } catch (error) {
       console.error(`${unit} 코인 업데이트 실패:`, error);
     }
   }
+
+  return change;
 }
+
+
 
 async function refreshVending(refreshData) {
   for (const [number,data] of Object.entries(refreshData)) {

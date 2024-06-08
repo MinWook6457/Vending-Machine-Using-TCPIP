@@ -105,6 +105,14 @@ const Home = () => {
     }
 
     const response = await window.ipcRenderer.invoke('getChange', { inputCoin });
+
+    console.log(response);
+
+    if(response.success === false){
+      alert('거스름돈이 부족합니다.');
+      return;
+    }
+
     const parseResponse = JSON.parse(JSON.stringify(response));
 
     const totalChange = Object.entries(parseResponse.change).reduce((total, [coin, count]) => {
@@ -180,7 +188,6 @@ const Home = () => {
                 inputCoin={inputCoin}
                 updateDrinkStock={updateDrinkStock}
                 updateInputCoin={updateInputCoin}
-                isCheck={isCheck} // Pass isCheck to disable purchase
               />
             </div>
           ))}
