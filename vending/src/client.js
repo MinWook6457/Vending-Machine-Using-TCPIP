@@ -210,6 +210,26 @@ function refresh(){
     });
 }
 
+function filledCoin(){
+    return new Promise((resolve, reject) => {
+        console.log('Filled Coin Message To Server');
+        socket.write(`fill`);
+
+        socket.once('data', (data) => {
+            try {
+                const response = JSON.parse(data.toString());
+                resolve(response);
+            } catch (error) {
+                reject(new Error('Failed to parse server response'));
+            }
+        });
+
+        socket.once('error', (err) => {
+            reject(new Error('socket error: ' + err.message));
+        });
+    });
+}
+
 function makeUpVending(){
     return new Promise((resolve, reject) => {
         console.log('Make Up Message To Server');
@@ -289,5 +309,5 @@ function collect(){
 }
 
 module.exports = {
-    socket, getInfo, buyDrink, getCoinInfo, inputCoin, getChange, checkPassword, refresh, makeUpVending, makeUpCoin, record, collect, changeAdminPassword
+    socket, getInfo, buyDrink, getCoinInfo, inputCoin, getChange, checkPassword, refresh, makeUpVending, makeUpCoin, record, collect, changeAdminPassword,filledCoin
 };

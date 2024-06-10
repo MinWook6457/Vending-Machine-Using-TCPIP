@@ -1,6 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
-const { socket1, getInfo, buyDrink , getCoinInfo, inputCoin, getChange, 
+const { socket1, getInfo, buyDrink , getCoinInfo, inputCoin, getChange, filledCoin,
   checkPassword, refresh, makeUpVending, makeUpCoin, record, collect, changeAdminPassword} = require('./client');
 
 if (require('electron-squirrel-startup')) {
@@ -181,6 +181,15 @@ app.whenReady().then(() => {
       return { success : false, message : error.message}
     }
 
+  })
+
+  ipcMain.handle('filledCoin',async(event,payload) => {
+    try{
+      const response = await filledCoin();
+      return response; 
+    }catch(error){
+      return { success : false, message : error.message}
+    }
   })
 
   ipcMain.on('reloadAllWindows', () => {

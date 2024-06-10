@@ -121,12 +121,6 @@ const server1 = net.createServer((socket) => {
 
         const calChange = await calculateChange(inputCoin);
 
-        if (Object.values(calChange).every(value => value === 0)) {
-          console.log('잔돈이 없습니다.');
-          socket.write(JSON.stringify({ success: false, message: '잔돈이 없습니다.' }));
-          return;
-        }
-
         const change = await updateCoinChange(calChange,socket);
 
         socket.write(JSON.stringify({ success: true, message: '잔돈 반환 완료', change }));
@@ -306,6 +300,23 @@ const server1 = net.createServer((socket) => {
         socket.write(JSON.stringify({ success: false, message: '코인 수집 중 에러' }));
       }
     }
+
+    if(data.startsWith('fill')){
+      try{
+        const coins = await Coin.findAll({});
+
+        coins.forEach(async (coin) => {
+          if (coin.change === 0) {
+            await Coin.update({ change: 2 }, { where: { id: coin.id } });
+          }
+        });
+
+        socket.write(JSON.stringify({ success: true, message: '잔돈 채우기 성공'}));
+      }catch(error){
+        socket.write(JSON.stringify({ success: true, message: '잔돈 채우기 중 오류 발생'}));
+      }
+    }
+
   });
 
   socket.on('close', () => {
@@ -377,6 +388,8 @@ async function updateCoinChange(change, socket) {
     try {
       const coin = await Coin.findOne({ where: { price: parseInt(unit) }, attributes: ['price', 'change'] });
 
+
+
       if (!coin) {
         console.log(`${unit} 코인이 존재하지 않습니다.`);
         socket.write(JSON.stringify({ success: false, message: '코인을 찾을 수 없음' }));
@@ -388,6 +401,7 @@ async function updateCoinChange(change, socket) {
       if (coin.change < count) {
         console.log('화폐 부족');
         socket.write(JSON.stringify({ success: false, message: '잔돈 반환 실패, 화폐가 부족합니다.' }));
+
         return;
       }
 

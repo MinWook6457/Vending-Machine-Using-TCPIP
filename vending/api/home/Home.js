@@ -2,6 +2,7 @@
 import Drink from './Drink';
 import MoneyImage from './MoneyImage';
 import changeImg from '../../img/change.png';
+import { Container, Row, Col, Button, Form } from 'react-bootstrap';
 
 const Home = () => {
   const [drinks, setDrinks] = useState([]);
@@ -205,6 +206,17 @@ const Home = () => {
     alert('관리자 모드 종료');
   };
 
+  const FilledCoin = async() => {
+    const response = await window.ipcRenderer.invoke('filledCoin', {});
+
+    if(response.success){
+      alert('잔돈 채우기 완료')
+    }else{
+      alert('잔돈 채우기 실패');
+    }
+
+  }
+
   return (
     <div>
       <div className="drink-list">
@@ -241,19 +253,25 @@ const Home = () => {
           ))}
         </div>
       </div>
-      <div>
+      <Container>
+      <Row>
         <div className='money d-flex justify-content-center'>
-          <div className='row'>
+          <div>
             <h3> 투입된 금액: {inputCoin} </h3>
-            <button onClick={() => changeCoinClick(inputCoin)}>
-              <img src={changeImg} width={100} alt="Change" />
-            </button>
           </div>
         </div>
-      </div>
-      <div className='admin d-flex justify-content-center'>
+        <div className='change d-flex justify-content-center'>
+        <button onClick={() => changeCoinClick(inputCoin)}>
+            <img src={changeImg} width={100} alt="Change" />
+          </button>
+        </div>
+      </Row>
+
+      </Container>
+    <Container>
+      <Row className='admin d-flex justify-content-center'>
         <h3> 관리자 모드 :{' '}
-          <input
+          <Form.Control
             type="password"
             name="userPassword"
             placeholder="password"
@@ -262,42 +280,46 @@ const Home = () => {
           />
         </h3>
         <div>
-          <button onClick={inputPasswordSubmit}>진입</button>          
+          <Button onClick={inputPasswordSubmit}>진입</Button>          
         </div>
         {isCheck &&
           <div>
             <p>{message}</p>
             <div>
-              <button onClick={inputMakeUpVending}>통계</button>
+              <Button onClick={inputMakeUpVending}>통계</Button>
             </div>
             <div>
-              <button onClick={refreshDrinks}>재고 보충</button>
+              <Button onClick={refreshDrinks}>재고 보충</Button>
             </div>
             <h3> 비밀번호 변경 :{' '}
-            <input
-             type="password"
-             name="currentPassword"
-             placeholder="현재 비밀번호"
-            value={currentPassword}
-            onChange={inputCurrentPassword}
+              <Form.Control
+                type="password"
+                name="currentPassword"
+                placeholder="현재 비밀번호"
+                value={currentPassword}
+                onChange={inputCurrentPassword}
               />
-            <input
-               type="password"
-               name="changePassword"
-               placeholder="password"
-               value={changePassword}
-               onChange={inputChangePassword}
-            />
-           </h3>
+              <Form.Control
+                type="password"
+                name="changePassword"
+                placeholder="새로운 비밀번호"
+                value={changePassword}
+                onChange={inputChangePassword}
+              />
+            </h3>
             <div>
-               <button onClick={handleChangePassword}>변경</button>          
-             </div>
+              <Button onClick={handleChangePassword}>변경</Button>          
+            </div>
             <div>
-              <button onClick={offAdmin}>종료</button>
+              <Button onClick={FilledCoin}>잔돈 채우기</Button>          
+            </div>
+            <div>
+              <Button onClick={offAdmin}>종료</Button>
             </div>
           </div>
         }
-      </div>
+      </Row>
+    </Container>
     </div>
   );
 };
