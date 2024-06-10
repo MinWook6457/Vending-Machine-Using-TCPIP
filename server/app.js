@@ -301,6 +301,49 @@ const server1 = net.createServer((socket) => {
       }
     }
 
+    if(data.startsWith('beverage')){
+      const payload = data.substring(8);
+      const { beverageName, newBeverageName } = JSON.parse(payload);
+      try {
+        const result = await Vending.update(
+          { beverage: newBeverageName },
+          { where: { beverage: beverageName } }
+        );
+    
+        if (result[0] === 0) {
+          socket.write(JSON.stringify({ success: false, message: '음료 이름 변경 실패: 해당 음료를 찾을 수 없습니다.' }));
+        } else {
+          socket.write(JSON.stringify({ success: true, message: '음료 이름 변경 완료' }));
+        }
+      } catch (error) {
+        console.error(error);
+        socket.write(JSON.stringify({ success: false, message: '음료 이름 변경 실패' }));
+      }
+    }
+
+    if(data.startsWith('price')){
+      const payload = data.substring(5);
+      const { beverageName, beveragePrice, newBeveragePrice } = JSON.parse(payload);
+      try {
+        const result = await Vending.update(
+          { price: parseInt(newBeveragePrice) },
+          { where: { 
+            beverage: beverageName
+           }
+          }
+        );
+    
+        if (result[0] === 0) {
+          socket.write(JSON.stringify({ success: false, message: '음료 가격 변경 실패: 해당 음료를 찾을 수 없습니다.' }));
+        } else {
+          socket.write(JSON.stringify({ success: true, message: '음료 가격 변경 완료' }));
+        }
+      } catch (error) {
+        console.error(error);
+        socket.write(JSON.stringify({ success: false, message: '음료 가격 변경 실패' }));
+      }
+    }
+
     if(data.startsWith('fill')){
       try{
         const coins = await Coin.findAll({});

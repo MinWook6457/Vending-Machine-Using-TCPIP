@@ -26,15 +26,8 @@ socket.on('data', (data) => {
         vendingInfo = JSON.parse(vendingDataString);
         console.log('Info:', vendingInfo);
        } else {
-        console.warn('Vending data is undefined');
+        console.warn('Info data is undefined');
        }
-
-        if (coinDataString) {
-         coinInfo = JSON.parse(coinDataString);
-         console.log('Coin Info:', coinInfo);
-      } else {
-        console.warn('Coin data is undefined');
-      }
     } catch (error) {
         console.error('JSON 파싱 에러:', error);
     }
@@ -92,6 +85,52 @@ function buyDrink(beverage, stock, price, inputCoin) {
             reject(new Error('socket1 error: ' + err.message));
         });
     });
+}
+
+function beveragePriceChange(beverageName, beveragePrice , newBeveragePrice){
+    return new Promise((resolve,reject) => {
+        const payload = JSON.stringify({beverageName, beveragePrice, newBeveragePrice});
+  
+        console.log(`선택된 음료 가격` + payload);
+  
+        socket.write(`price${payload}`);
+  
+        socket.once('data', (data) => {
+          try {
+              const response = JSON.parse(data.toString());
+              resolve(response);
+          } catch (error) {
+              reject(new Error('Failed to parse server response'));
+          }
+         });
+  
+         socket.once('error', (err) => {
+           reject(new Error('socket1 error: ' + err.message));
+         });
+    })
+}
+
+function beverageNameChange(beverageName,newBeverageName){
+    return new Promise((resolve,reject) => {
+        const payload = JSON.stringify({beverageName,newBeverageName});
+  
+        console.log(`선택된 음료 이름` + payload);
+  
+        socket.write(`beverage${payload}`);
+  
+        socket.once('data', (data) => {
+          try {
+              const response = JSON.parse(data.toString());
+              resolve(response);
+          } catch (error) {
+              reject(new Error('Failed to parse server response'));
+          }
+         });
+  
+         socket.once('error', (err) => {
+           reject(new Error('socket1 error: ' + err.message));
+         });
+    })
 }
 
 function inputCoin(value,name){
@@ -309,5 +348,6 @@ function collect(){
 }
 
 module.exports = {
-    socket, getInfo, buyDrink, getCoinInfo, inputCoin, getChange, checkPassword, refresh, makeUpVending, makeUpCoin, record, collect, changeAdminPassword,filledCoin
+    socket, getInfo, buyDrink, getCoinInfo, inputCoin, getChange, checkPassword, refresh, 
+    makeUpVending, makeUpCoin, record, collect, changeAdminPassword,filledCoin, beverageNameChange, beveragePriceChange
 };
