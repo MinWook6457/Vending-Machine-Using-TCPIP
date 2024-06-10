@@ -1,20 +1,19 @@
 
 module.exports = (sequelize, DataTypes) => {
-    const client = sequelize.define(
-        'client',
+    const admin = sequelize.define(
+        'admin',
         {
             id: { // 기본키
                 type: DataTypes.INTEGER,
                 autoIncrement: true,
                 primaryKey: true,
-                comment: '클라이언트 고유 id',
+                comment: '관리자 고유 id',
             },
-            money: {
-                type: DataTypes.INTEGER,
+            password: {
+                type: DataTypes.STRING(255),
                 allowNull: false,
-                defaultValue : 7000, // 기본급 7000원
-                comment: '금액'
-            }
+                comment: '비밀번호'
+            },
         },
         {
             timestamps: true,
@@ -29,5 +28,5 @@ module.exports = (sequelize, DataTypes) => {
         // user.hasMany(models.RefreshToken, {foreignKey : 'user_id'})
     }
     */
-    return client;
+    return admin;
 }

@@ -1,6 +1,6 @@
 require('dotenv').config();
 const net = require('net');
-const { Vending, Coin, Record, Collect, sequelize } = require('./models/index');
+const { Vending, Coin, Record, Collect, Admin, sequelize } = require('./models/index');
 const { Op } = require('sequelize'); 
 const clients = [];
 
@@ -53,6 +53,7 @@ const server1 = net.createServer((socket) => {
       try {
         const { beverage, price, inputCoin } = JSON.parse(payload);
         console.log(`구매 요청 - 음료수: ${beverage}, 가격 :${price}, 투입된 화폐 : ${inputCoin}`);
+
 
         // 구매 후 RECORD
         Record.create({
@@ -134,20 +135,59 @@ const server1 = net.createServer((socket) => {
       }
     }
 
-    if(data.startsWith('password')){
+    if (data.startsWith('password')) {
       const payload = data.substring(8);
-      try{
-        const {password} = JSON.parse(payload);
-
-        console.log(typeof password)
-
-        if(password === "admin1234"){
-          socket.write(JSON.stringify({ success: true, message: '비밀번호가 맞습니다.', password }));
-        }else{
-          socket.write(JSON.stringify({ success: false, message: '비밀번호가 맞지 않습니다.' }));
+      try {
+        const { password } = JSON.parse(payload);
+    
+        console.log('입력된 비밀번호', password);
+    
+        // Admin 정보 가져오기
+        const admin = await Admin.findOne({
+          where: {
+            password: password
+          },
+          attributes: ['password']
+        });
+    
+        console.log('조회된 관리자 정보:', admin);
+    
+        if (!admin) {
+          socket.write(JSON.stringify({ success: false, message: '비밀번호가 맞지 않습니다.', password }));
+        } else {
+          if (password === admin.password) {
+            socket.write(JSON.stringify({ success: true, message: '비밀번호가 맞습니다.', password }));
+          } else {
+            socket.write(JSON.stringify({ success: false, message: '비밀번호가 맞지 않습니다.' }));
+          }
         }
-      }catch(error){
-        socket.write(JSON.stringify({ success: false, message: '관리자 모드 에러' }));
+      } catch (error) {
+        console.error('비밀번호 검증 에러:', error);
+        socket.write(JSON.stringify({ success: false, message: '관리자 모드 에러', error: error.message }));
+      }
+    }
+
+    if (data.startsWith('adminPassword')) {
+      const payload = data.substring(13);
+      try {
+        const { currentPassword, changePassword } = JSON.parse(payload);    
+        console.log(`이전 비밀번호: ${currentPassword}, 새로운 비밀번호: ${changePassword}`);
+    
+        const admin = await Admin.findOne({
+          where: { password: currentPassword }
+        });
+       
+      if (!admin) {
+        socket.write(JSON.stringify({ success: false, message: '현재 비밀번호가 일치하지 않습니다.' }));
+        return;
+       }
+    
+        await admin.update({ password: changePassword });
+    
+        socket.write(JSON.stringify({ success: true, message: '비밀번호가 성공적으로 변경되었습니다.' }));
+      } catch (error) {
+        console.error('비밀번호 변경 중 오류가 발생했습니다:', error);
+        socket.write(JSON.stringify({ success: false, message: '비밀번호 변경 중 오류가 발생했습니다.' }));
       }
     }
 
@@ -198,9 +238,6 @@ const server1 = net.createServer((socket) => {
 
     if(data.startsWith('record')){
       const date = data.substring(6).trim(); // 날짜 문자열 추출 및 공백 제거
-
-      // const recordDate = new Date(date);
-
       try{
         const vendingData = await Vending.findAll({
           attributes: ['beverage']

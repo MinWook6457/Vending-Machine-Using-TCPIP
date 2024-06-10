@@ -167,6 +167,29 @@ function checkPassword(password){
     })
 }
 
+function changeAdminPassword(currentPassword,changePassword) {
+    return new Promise((resolve, reject) => {
+      const payload = JSON.stringify({ currentPassword, changePassword });
+  
+      console.log(`입력된 비밀번호: ${changePassword}`);
+  
+      socket.write(`adminPassword${payload}`);
+  
+      socket.once('data', (data) => {
+        try {
+          const response = JSON.parse(data.toString());
+          resolve(response);
+        } catch (error) {
+          reject(new Error('Failed to parse server response'));
+        }
+      });
+  
+      socket.once('error', (err) => {
+        reject(new Error('Socket error: ' + err.message));
+      });
+    });
+  }
+
 function refresh(){
     return new Promise((resolve, reject) => {
         console.log('Refresh Data To Server');
@@ -266,5 +289,5 @@ function collect(){
 }
 
 module.exports = {
-    socket, getInfo, buyDrink, getCoinInfo, inputCoin, getChange, checkPassword, refresh, makeUpVending, makeUpCoin, record, collect
+    socket, getInfo, buyDrink, getCoinInfo, inputCoin, getChange, checkPassword, refresh, makeUpVending, makeUpCoin, record, collect, changeAdminPassword
 };

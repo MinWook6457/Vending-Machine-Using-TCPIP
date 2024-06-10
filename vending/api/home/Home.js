@@ -9,6 +9,8 @@ const Home = () => {
   const [drinkStocks, setDrinkStocks] = useState({});
   const [oneThousandCount, setOneThousandCount] = useState(0);
   const [password, setPassword] = useState('');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [changePassword,setChangePassword] = useState('');
   const [message, setMessage] = useState('');
   const [isCheck, setIsCheck] = useState(false);
 
@@ -129,7 +131,16 @@ const Home = () => {
 
   const inputPassword = (e) => {
     setPassword(e.target.value);
+
   };
+
+  const inputCurrentPassword = (e) => {
+    setCurrentPassword(e.target.value);
+  };
+
+  const inputChangePassword = (e) => {
+    setChangePassword(e.target.value);
+  }
 
   const inputPasswordSubmit = async () => {
     try {
@@ -146,6 +157,25 @@ const Home = () => {
       console.log('관리자 모드 진입 실패');
     }
   };
+
+  const handleChangePassword = async () => {
+    try {
+      console.log(password)
+      console.log( changePassword);
+
+      const response = await window.ipcRenderer.invoke('changePassword', {currentPassword: currentPassword, changePassword: changePassword});
+
+      console.log(response);
+
+      if (response.success) {
+        alert('관리자 비밀 번호 변경 완료');
+      } else {
+        alert('관리자 비밀 번호 변경 실패');
+      }
+    } catch (error) {
+      console.log('관리자 모드 진입 실패');
+    }
+  }
 
   const inputMakeUpVending = async () => {
     window.location.hash = "#/admin";
@@ -231,7 +261,9 @@ const Home = () => {
             onChange={inputPassword}
           />
         </h3>
-        <button onClick={inputPasswordSubmit}>진입</button>
+        <div>
+          <button onClick={inputPasswordSubmit}>진입</button>          
+        </div>
         {isCheck &&
           <div>
             <p>{message}</p>
@@ -241,6 +273,25 @@ const Home = () => {
             <div>
               <button onClick={refreshDrinks}>재고 보충</button>
             </div>
+            <h3> 비밀번호 변경 :{' '}
+            <input
+             type="password"
+             name="currentPassword"
+             placeholder="현재 비밀번호"
+            value={currentPassword}
+            onChange={inputCurrentPassword}
+              />
+            <input
+               type="password"
+               name="changePassword"
+               placeholder="password"
+               value={changePassword}
+               onChange={inputChangePassword}
+            />
+           </h3>
+            <div>
+               <button onClick={handleChangePassword}>변경</button>          
+             </div>
             <div>
               <button onClick={offAdmin}>종료</button>
             </div>

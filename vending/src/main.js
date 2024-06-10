@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
-const { socket1, getInfo, buyDrink , getCoinInfo, inputCoin, getChange, checkPassword, refresh, makeUpVending, makeUpCoin, record, collect} = require('./client');
+const { socket1, getInfo, buyDrink , getCoinInfo, inputCoin, getChange, 
+  checkPassword, refresh, makeUpVending, makeUpCoin, record, collect, changeAdminPassword} = require('./client');
 
 if (require('electron-squirrel-startup')) {
   app.quit();
@@ -113,10 +114,22 @@ app.whenReady().then(() => {
 
   ipcMain.handle('checkPassword',async(event,payload) => {
     const password = payload.password;
+
     console.log(password)
     try{
       const response = await checkPassword(password);
       return response
+    }catch(error){
+      return { success : false, message : error.message}
+    }
+  })
+
+  ipcMain.handle('changePassword',async(event,payload) => {
+    const { currentPassword, changePassword } = payload;
+
+    try{
+        const response = await changeAdminPassword(currentPassword,changePassword);
+        return response;
     }catch(error){
       return { success : false, message : error.message}
     }
