@@ -26,4 +26,4 @@
  * ```
  */
 
-import './index.jsx';
+import './index.jsx'; // 렌더러 파일 정의

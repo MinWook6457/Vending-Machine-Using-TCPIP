@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-function Buy({ beverage, nowStock, price, inputCoin, updateInputCoin, updateDrinkStock ,isCheck}) {
+function Buy({ beverage, nowStock, price, inputCoin, updateInputCoin, updateDrinkStock}) {
   const [buyStock, setBuyStock] = useState(nowStock);
 
   const test = localStorage.getItem('isCheck');

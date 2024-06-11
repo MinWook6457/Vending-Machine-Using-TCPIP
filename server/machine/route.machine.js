@@ -4,18 +4,13 @@ function handleRequest(requestData, socket) {
     const request = parseRequest(requestData);
     const { method, path } = request;
 
-    // 요청 메서드와 경로에 따라 처리
     if (method === 'POST' && path === '/machine/selectedBeverage') {
-        // POST /machine/selectedBeverage 요청 처리
-        // 데이터를 추출하고 유효성 검사 후 vendingMachine.selectedBeverage 호출
         const { description, price } = request.data;
         vendingMachine.selectedBeverage({ body: { description, price } }, { socket });
     } else if (method === 'POST' && path === '/machine/selectStock') {
-        // POST /machine/selectStock 요청 처리 
         const { stock_id } = request.data;
         vendingMachine.selectStock({ body: { stock_id } }, { socket });
     } else {
-        // 잘못된 요청 처리
         socket.write('HTTP/1.1 404 Not Found\r\n\r\n');
         socket.write('404 Not Found');
     }
