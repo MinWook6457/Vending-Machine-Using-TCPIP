@@ -40,7 +40,7 @@ npm run package
 
 **Rendering and Communicate to Socket**
 
-## Fisrt
+## First
 
 Open IPCRenderer Channel in preload
 
@@ -65,10 +65,86 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
 
 window.ipcRenderer.[channel]('...args')
 
-This is example...
+Example ...
 
 ```bash
 await window.ipcRenderer.invoke('channel', {});
+```
+
+## in Main Process 
+
+use handle function and get response
+
+Example ...
+
+```bash
+  ipcMain.handle('getBuy', async (event, payload) => {
+    const { beverage, stock , price, inputCoin} = payload;
+    console.log(beverage, stock, price, inputCoin);
+    try {
+      const response = await buyDrink(beverage, stock, price, inputCoin);
+      return response;
+    } catch (error) {
+      console.error('Error in getBuy handler:', error);
+      return { success: false, message: error.message };
+    }
+  });
+```
+
+## await function listen to client
+
+use Promise and using socket write data to server
+
+Example ...
+
+```bash
+function buyDrink(beverage, stock, price, inputCoin) {
+    return new Promise((resolve, reject) => {
+        const payload = JSON.stringify({ beverage, stock, price, inputCoin });
+        socket.write(`buy${payload}`);
+        socket.once('data', (data) => {
+            try {
+                const response = JSON.parse(data.toString());
+                resolve(response);
+            } catch (error) {
+                reject(new Error('Failed to parse server response'));
+            }
+        });
+        socket.once('error', (err) => {
+            reject(new Error('socket1 error: ' + err.message));
+        });
+    });
+}
+```
+
+## server socket listen data and substring prefix 
+
+Example ...
+
+```bash
+  if (data.startsWith('input')) {
+            const payload = data.substring(5);
+            .
+            .
+            .
+```
+
+## Run Back-End logic and returned results to client
+
+Example ...
+
+```bash
+  if (data.startsWith('makeUpCoin')) {
+            try {
+                const coinData = await Coin.findAll({
+                    attributes: ['unit', 'price', 'change'],
+                });
+                const refreshData = JSON.stringify(coinData);
+                socket.write(JSON.stringify({success: true, message: '전체 화폐 데이터 전달', refreshData}));
+            } catch (err) {
+                socket.write(JSON.stringify({success: false, message: '화폐 데이터 전달 중 에러'}));
+            }
+        }
 ```
 
 ## License
