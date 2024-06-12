@@ -149,8 +149,8 @@ Example ...
 
 ## STACK
 
-<img src="https://img.shields.io/badge/Electron-#47848F?style=for-the-badge&logo=Electron&logoColor=white">
-<img src="https://img.shields.io/badge/Sequelize-##52B0E7?style=for-the-badge&logo=Sequelize-&logoColor=white">
+![image](https://github.com/MinWook6457/Vending-Machine-Using-TCPIP/assets/103114126/758cc49a-8cc0-47bc-bdd8-116f580e0e68)
+
 
 
 ## License
