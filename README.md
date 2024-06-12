@@ -149,7 +149,8 @@ Example ...
 
 ## STACK
 
-<img src="https://img.shields.io/badge/Electron-#47848F?style=for-the-badge&logo=Electron&logoColor=white"><img src="https://img.shields.io/badge/Sequelize-##52B0E7?style=for-the-badge&logo=Sequelize-&logoColor=white">
+<img src="https://img.shields.io/badge/Electron-#47848F?style=for-the-badge&logo=Electron&logoColor=white">
+<img src="https://img.shields.io/badge/Sequelize-##52B0E7?style=for-the-badge&logo=Sequelize-&logoColor=white">
 
 
 ## License
