@@ -38,9 +38,9 @@ To package apps for the local platform:
 npm run package
 ```
 
-**Rendering and Communicate to Socket**
+## Rendering and Communicate to Socket
 
-## First
+First
 
 Open IPCRenderer Channel in preload
 
