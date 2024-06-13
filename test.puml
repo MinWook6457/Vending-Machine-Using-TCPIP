@@ -1,0 +1,114 @@
+@startuml
+!define RECTANGLE class
+
+RECTANGLE VendingMachine {
+  +List<Drink> drinks
+  +StockChecker stockChecker
+  +MoneyProcessor moneyProcessor
+  +SalesManager salesManager
+  +AdminManager adminManager
+  +displayItems(): void
+  +receiveSelection(itemID: int): void
+  +insertMoney(amount: int): void
+  +dispenseItem(): void
+  +dispenseChange(): void
+  +returnMoney(): void
+  +showAdminMenu(): void
+}
+
+RECTANGLE Drink {
+  +String name
+  +int price
+  +int stock
+  +dispense(): void
+}
+
+RECTANGLE StockChecker {
+  +checkStock(itemID: int): boolean
+  +updateStock(itemID: int, amount: int): void
+}
+
+RECTANGLE MoneyProcessor {
+  +List<Coin> coins
+  +List<Bill> bills
+  +int totalAmount
+  +processMoney(amount: int): boolean
+  +dispenseChange(): List<Money>
+  +returnMoney(): List<Money>
+}
+
+RECTANGLE Coin {
+  +int value
+  +int count
+}
+
+RECTANGLE Bill {
+  +int value
+  +int count
+}
+
+RECTANGLE SalesManager {
+  +List<SalesRecord> dailySales
+  +List<SalesRecord> monthlySales
+  +recordSale(itemID: int, amount: int): void
+  +generateReport(period: String): void
+}
+
+RECTANGLE SalesRecord {
+  +String date
+  +String itemName
+  +int quantity
+  +int totalPrice
+}
+
+RECTANGLE AdminManager {
+  +String password
+  +List<Drink> drinks
+  +accessAdminMenu(password: String): boolean
+  +updateDrinkPrice(itemID: int, newPrice: int): void
+  +updateDrinkName(itemID: int, newName: String): void
+  +updateStock(itemID: int, newStock: int): void
+  +collectMoney(): void
+  +viewCashStatus(): void
+}
+
+RECTANGLE User {
+  +selectItem(itemID: int): void
+  +insertMoney(amount: int): void
+  +requestChange(): void
+  +receiveItem(): void
+  +receiveChange(): void
+}
+
+RECTANGLE Admin {
+  +login(password: String): void
+  +updatePrice(itemID: int, newPrice: int): void
+  +updateName(itemID: int, newName: String): void
+  +replenishStock(itemID: int, amount: int): void
+  +collectMoney(): void
+  +viewCashStatus(): void
+  +viewSalesReport(period: String): void
+}
+
+User -> VendingMachine : selectItem(itemID: int)
+User -> VendingMachine : insertMoney(amount: int)
+User -> VendingMachine : requestChange()
+User -> VendingMachine : receiveItem()
+User -> VendingMachine : receiveChange()
+
+Admin -> AdminManager : login(password: String)
+Admin -> AdminManager : updatePrice(itemID: int, newPrice: int)
+Admin -> AdminManager : updateName(itemID: int, newName: String)
+Admin -> AdminManager : replenishStock(itemID: int, amount: int)
+Admin -> AdminManager : collectMoney()
+Admin -> AdminManager : viewCashStatus()
+Admin -> AdminManager : viewSalesReport(period: String)
+
+VendingMachine -> StockChecker : checkStock(itemID: int)
+VendingMachine -> StockChecker : updateStock(itemID: int, amount: int)
+VendingMachine -> MoneyProcessor : processMoney(amount: int)
+VendingMachine -> MoneyProcessor : dispenseChange()
+VendingMachine -> MoneyProcessor : returnMoney()
+VendingMachine -> SalesManager : recordSale(itemID: int, amount: int)
+VendingMachine -> SalesManager : generateReport(period: String)
+@enduml
